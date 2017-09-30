@@ -1,7 +1,9 @@
 <?php
+// Questionable Content
+// Simple to archive, get the current day's number and work in reverse.
 
 $html = file_get_contents('http://www.questionablecontent.net/');
-preg_match('@/comics/([0-9]+).png@', $html, $matches);
+preg_match('@/comics/([0-9]+)\\.png@', $html, $matches);
 
 if (!$matches[1]) {
 	echo "No comic found on home page! :(\n";

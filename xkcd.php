@@ -1,4 +1,6 @@
 <?php
+// xkcd
+// Not too bad to archive, get the current ID, work in reverse using the API.
 
 $current = json_decode(file_get_contents('https://xkcd.com/info.0.json'));
 
