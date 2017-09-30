@@ -2,6 +2,9 @@
 // xkcd
 // Not too bad to archive, get the current ID, work in reverse using the API.
 
+// This one can be re-run several times and it'll safely get images missed in
+// the last run if it was stopped before completing
+
 $current = json_decode(file_get_contents('https://xkcd.com/info.0.json'));
 
 if (!is_dir('xkcd')) {

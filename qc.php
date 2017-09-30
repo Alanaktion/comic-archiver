@@ -2,6 +2,9 @@
 // Questionable Content
 // Simple to archive, get the current day's number and work in reverse.
 
+// This one can be re-run several times and it'll safely get images missed in
+// the last run if it was stopped before completing
+
 $html = file_get_contents('http://www.questionablecontent.net/');
 preg_match('@/comics/([0-9]+)\\.png@', $html, $matches);
 

@@ -1,9 +1,9 @@
 <?php
 // Dumbing of Age
 // A bit tricky, but not too bad
+
 // We start with the current day, then click the Previous link until we find
 // an image we've already saved before.
-
 
 $html = file_get_contents('http://www.dumbingofage.com/');
 preg_match('@/comics/(.+\\.png)@', $html, $matches);
