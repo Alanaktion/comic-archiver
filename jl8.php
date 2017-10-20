@@ -18,5 +18,6 @@ foreach ($matches[1] as $img) {
 		echo "Downloading $img\n";
 		$data = file_get_contents($url . $img);
 		file_put_contents('jl8/' . $img, $data);
+		usleep(500000);
 	}
 }
