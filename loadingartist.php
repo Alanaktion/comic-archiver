@@ -7,7 +7,6 @@ $html = file_get_contents('https://loadingartist.com/latest');
 preg_match('@/uploads/([0-9]+/[0-9]+)/([0-9a-zA-Z-]+\\.[a-z]{3,4})@', $html, $matches);
 
 if (empty($matches[2])) {
-	echo $html;
 	echo "No comic found on starting page! :(\n";
 	return;
 }
