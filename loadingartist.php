@@ -32,7 +32,7 @@ while (true) {
 	$regex = '@class="normal highlight prev comic-thumb" href="(https://loadingartist.com/comic/[0-9a-zA-Z-]+/?)"@';
 	preg_match($regex, $html, $prevMatch);
 
-	if (!$prevMatch[1]) {
+	if (empty($prevMatch[1])) {
 		echo "No previous URL found!\n";
 		return;
 	}

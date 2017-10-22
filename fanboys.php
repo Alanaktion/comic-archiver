@@ -46,6 +46,10 @@ while (true) {
 	}
 
 	preg_match('@/comics/([^"]+\\.[a-z]{3,4})@', $html, $matches);
+	if (empty($matches[1])) {
+		echo "No image found! Exiting.\n";
+		return;
+	}
 
 	usleep(500000);
 }

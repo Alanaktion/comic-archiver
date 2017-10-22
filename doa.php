@@ -46,6 +46,10 @@ while (true) {
 	}
 
 	preg_match('@/comics/(.+\\.png)@', $html, $matches);
+	if (empty($matches[1])) {
+		echo "No image found on page!\n";
+		return;
+	}
 
 	usleep(500000);
 }

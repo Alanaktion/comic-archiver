@@ -40,7 +40,7 @@ while (true) {
 	$regex = '@href="(http://www.leasticoulddo.com/comic/[0-9]+/?)" id="nav-large-prev"@';
 	preg_match($regex, $html, $prevMatch);
 
-	if (!$prevMatch[1]) {
+	if (empty($prevMatch[1])) {
 		echo "No previous URL found!\n";
 		return;
 	}
@@ -52,6 +52,10 @@ while (true) {
 	}
 
 	preg_match('@/uploads/([0-9]+/[0-9]+)/([0-9]+\\.[a-z]{3,4})@', $html, $matches);
+	if (empty($matches[1])) {
+		echo "No image found on page!\n";
+		return;
+	}
 
 	usleep(500000);
 }
