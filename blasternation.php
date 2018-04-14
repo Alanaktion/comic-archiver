@@ -27,7 +27,7 @@ while ($url != $end) {
 		$data = @file_get_contents('http://www.blasternation.com/comics/' . $matches[1]);
 		if ($data) {
 			$ext = pathinfo(parse_url($matches[1])['path'], PATHINFO_EXTENSION);
-			file_put_contents('blasternation/' . $name . $ext, $data);
+			file_put_contents('blasternation/' . $name . '.' . $ext, $data);
 		}
 	}
 
