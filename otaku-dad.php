@@ -19,7 +19,7 @@ while ($url != $end) {
 	preg_match('@src="http://www.otaku-dad.com/comics/([0-9a-zA-Z-]+\\.[a-z]{3,4})" id="cc-comic"@', $html, $matches);
 	if (!empty($matches[1])) {
 		$name = trim(substr($url, 31), '/');
-		if (glob('otaku-dad/{$name}*')) {
+		if (glob("otaku-dad/{$name}*")) {
 			return;
 		}
 
