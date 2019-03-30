@@ -4,6 +4,8 @@
 
 // We start with the current day, then click the Previous link until we find
 // an image we've already saved before.
+// We also save the comic with the date it was posted so that they are
+// readable in chronological order.
 
 $html = file_get_contents('http://falcdaily.smackjeeves.com/');
 preg_match('@Date Posted:</strong> ([^<>]+)</div>@', $html, $dateMatches);
