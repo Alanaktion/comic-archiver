@@ -34,6 +34,7 @@ while (true) {
 	preg_match($regex, $html, $prevMatch);
 
 	if (empty($prevMatch[1])) {
+        // TODO: Fix issue loading pages before 2018-09-05
 		echo "No previous URL found!\n";
 		return;
 	}
