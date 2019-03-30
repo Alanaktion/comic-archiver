@@ -35,7 +35,7 @@ while (true) {
 	$regex = '@href="(http://iamarg.com/[0-9a-zA-Z/-]+)" class="navi navi-prev"@';
 	preg_match($regex, $html, $prevMatch);
 
-	if (!$prevMatch[1]) {
+	if (empty($prevMatch[1])) {
 		echo "No previous URL found!\n";
 		return;
 	}

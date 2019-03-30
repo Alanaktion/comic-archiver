@@ -8,7 +8,7 @@
 $html = file_get_contents('http://www.dumbingofage.com/');
 preg_match('@/comics/(.+\\.png)@', $html, $matches);
 
-if (!$matches[1]) {
+if (empty($matches[1])) {
 	echo "No comic found on home page! :(\n";
 	return;
 }
@@ -34,7 +34,7 @@ while (true) {
 	$regex = '@href="(http://www.dumbingofage.com/[0-9a-zA-Z/-]+)" class="navi navi-prev"@';
 	preg_match($regex, $html, $prevMatch);
 
-	if (!$prevMatch[1]) {
+	if (empty($prevMatch[1])) {
 		echo "No previous URL found!\n";
 		return;
 	}
