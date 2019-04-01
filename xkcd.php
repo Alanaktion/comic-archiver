@@ -12,6 +12,9 @@ if (!is_dir('xkcd')) {
 }
 
 for ($i = $current->num; $i > 0; $i--) {
+	if ($i == 404) {
+		continue;
+	}
 	if (glob('xkcd/' . $i . '-*')) {
 		continue;
 	}
