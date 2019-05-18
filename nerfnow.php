@@ -28,6 +28,10 @@ for ($i = $start; $i > 0; $i--) {
 
     echo "Downloading #$i\n";
     $html = file_get_contents('http://www.nerfnow.com/comic/' . $i);
+    if (!$html) {
+        echo "Unable to load page, skipping...\n";
+        continue;
+    }
     preg_match('@/img/([0-9]+)/([0-9]+\\.[a-z]{3,4})@', $html, $matches);
 
     $url = "http://www.nerfnow.com/img/$i/{$matches[2]}";
@@ -36,5 +40,5 @@ for ($i = $start; $i > 0; $i--) {
         file_put_contents("nerfnow/$i-{$matches[2]}", $data);
     }
 
-    usleep(500000);
+    usleep(5e5);
 }
