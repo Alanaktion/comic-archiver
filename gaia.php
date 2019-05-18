@@ -3,6 +3,10 @@
 // Another ComicPress one, still updating regularly, but ending soon (2019)
 // This is hosted on the same domain as Sandra and Woo, in a sub-directory
 
+// Note that you can get official downloads of this comic, including
+// high-resolution and draft versions by supporting the creators on Patreon!
+// https://www.patreon.com/gaia
+
 $html = file_get_contents('http://www.sandraandwoo.com/gaia/');
 preg_match('@/gaia/comics/(.+\\.(jpg|png|gif))@', $html, $matches);
 

@@ -2,6 +2,10 @@
 // Sandra and Woo
 // Another ComicPress one, still updating regularly
 
+// Note that you can get official downloads of this comic, including
+// high-resolution and draft versions by supporting the creators on Patreon!
+// https://www.patreon.com/sandraandwoo
+
 $html = file_get_contents('http://www.sandraandwoo.com/');
 preg_match('@/comics/(.+\\.(jpg|png|gif))@', $html, $matches);
 
