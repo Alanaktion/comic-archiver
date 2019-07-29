@@ -20,7 +20,7 @@ if (!is_dir('qc')) {
 $start = $matches[1];
 
 for ($i = $start; $i > 0; $i--) {
-    if (is_file("qc/$i.png") || is_file("qc/$i.jpg")) {
+    if (is_file("qc/$i.png") || is_file("qc/$i.jpg") || is_file("qc/$i.gif")) {
         continue;
     }
 
@@ -34,6 +34,12 @@ for ($i = $start; $i > 0; $i--) {
 		$data = @file_get_contents($url);
 		if ($data) {
 			file_put_contents("qc/$i.jpg", $data);
+		} else {
+			$url = "http://www.questionablecontent.net/comics/$i.gif";
+			$data = @file_get_contents($url);
+			if ($data) {
+				file_put_contents("qc/$i.gif", $data);
+			}
 		}
 	}
 
