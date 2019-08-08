@@ -12,14 +12,14 @@ A recent (1.8+ probably) Go install. No external packages are used, so no need t
 You can either run the scripts directly, for example:
 
 ```bash
-go run doa.go
+go run ./src/xkcd
 ```
 
 Or you can build and run them:
 
 ```bash
-go build doa.go
-./doa
+go build ./src/xkcd
+./xkcd
 ```
 
 In either case, the comics will be downloaded to `./comics/<comic name>`.
