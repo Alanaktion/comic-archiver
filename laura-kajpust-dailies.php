@@ -60,5 +60,5 @@ while (true) {
     }
     $date = date('Y-m-d-His', strtotime($dateMatches[1]));
 
-    usleep(500000);
+    usleep(5e5);
 }

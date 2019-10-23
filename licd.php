@@ -57,5 +57,5 @@ while (true) {
         return;
     }
 
-    usleep(500000);
+    usleep(5e5);
 }

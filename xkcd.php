@@ -33,5 +33,5 @@ for ($i = $current->num; $i > 0; $i--) {
         }
     }
 
-    usleep(500000);
+    usleep(5e5);
 }

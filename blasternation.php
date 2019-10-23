@@ -34,5 +34,5 @@ while ($url != $end) {
     preg_match('@rel="next" href="(http://www.blasternation.com/comic/[0-9a-zA-Z-]+/?)"@', $html, $matches);
     $url = $matches[1];
 
-    usleep(500000);
+    usleep(5e5);
 }

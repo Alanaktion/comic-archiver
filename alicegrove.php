@@ -43,5 +43,5 @@ for ($i = $start; $i > 0; $i--) {
             file_put_contents("alicegrove/$name", $data);
         }
     }
-    usleep(500000);
+    usleep(5e5);
 }

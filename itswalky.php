@@ -51,7 +51,7 @@ foreach ($years as $y) {
                 file_put_contents("itswalky/$file", $data);
             }
 
-            usleep(500000);
+            usleep(5e5);
         }
     }
 }

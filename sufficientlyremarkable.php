@@ -20,5 +20,5 @@ while ($url) {
     preg_match('/class="comicPagination nav-prev" href="([^"]+)"/', $html, $urlMatch);
     $url = @$urlMatch[1];
 
-    usleep(500000);
+    usleep(5e5);
 }

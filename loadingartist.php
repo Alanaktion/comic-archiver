@@ -45,5 +45,5 @@ while (true) {
 
     preg_match('@/uploads/([0-9]+/[0-9]+)/([0-9a-zA-Z-]+\\.[a-z]{3,4})@', $html, $matches);
 
-    usleep(500000);
+    usleep(5e5);
 }

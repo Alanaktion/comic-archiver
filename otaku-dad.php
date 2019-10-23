@@ -35,5 +35,5 @@ while ($url != $end) {
     $url = $matches[1];
     $i++;
 
-    usleep(500000);
+    usleep(5e5);
 }

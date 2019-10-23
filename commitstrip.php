@@ -30,5 +30,5 @@ while ($url) {
     preg_match('@href="(https://www.commitstrip.com/20[^"]+)" rel="next"@', $html, $matches);
     $url = str_replace('.com/20', '.com/en/20', $matches[1]);
 
-    usleep(500000);
+    usleep(5e5);
 }
