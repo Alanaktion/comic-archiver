@@ -5,7 +5,7 @@
 // We start with the current day, then click the Previous link until we find
 // an image we've already saved before.
 
-$html = file_get_contents('http://www.dumbingofage.com/');
+$html = file_get_contents('https://www.dumbingofage.com/');
 preg_match('@/comics/(.+\\.png)@', $html, $matches);
 
 if (empty($matches[1])) {
@@ -24,14 +24,14 @@ while (true) {
     }
 
     echo "Downloading {$matches[1]}\n";
-    $url = "http://www.dumbingofage.com/comics/{$matches[1]}";
+    $url = "https://www.dumbingofage.com/comics/{$matches[1]}";
     $data = @file_get_contents($url);
     if ($data) {
         file_put_contents("doa/{$matches[1]}", $data);
     }
 
     // Find previous page link
-    $regex = '@href="(http://www.dumbingofage.com/[0-9a-zA-Z/-]+)" class="navi navi-prev"@';
+    $regex = '@href="(https://www.dumbingofage.com/[0-9a-zA-Z/-]+)" class="navi navi-prev"@';
     preg_match($regex, $html, $prevMatch);
 
     if (empty($prevMatch[1])) {
