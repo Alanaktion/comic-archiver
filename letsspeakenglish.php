@@ -5,7 +5,7 @@
 // book as long as it's still available, it's great!
 // https://hivemill.com/products/lets-speak-english
 
-$html = file_get_contents('http://www.marycagle.com/letsspeakenglish/134-slow-motion');
+$html = file_get_contents('https://www.marycagle.com/letsspeakenglish/134-slow-motion');
 preg_match('@/comics/(.+\\.(jpg|png|gif))@', $html, $matches);
 
 if (empty($matches[1])) {
@@ -24,14 +24,14 @@ while (true) {
     }
 
     echo "Downloading {$matches[1]}\n";
-    $url = "http://www.marycagle.com/comics/{$matches[1]}";
+    $url = "https://www.marycagle.com/comics/{$matches[1]}";
     $data = @file_get_contents($url);
     if ($data) {
         file_put_contents("letsspeakenglish/{$matches[1]}", $data);
     }
 
     // Find previous page link
-    $regex = '@rel="prev" href="(http://www.marycagle.com/letsspeakenglish/[0-9a-zA-Z-]+)"@';
+    $regex = '@rel="prev" href="(https://www.marycagle.com/letsspeakenglish/[0-9a-zA-Z-]+)"@';
     preg_match($regex, $html, $prevMatch);
 
     if (empty($prevMatch[1])) {
