@@ -2,7 +2,7 @@
 // Go Get a Roomie!
 // Another ComicPress one, still updating regularly.
 
-$html = file_get_contents('http://www.gogetaroomie.com/');
+$html = file_get_contents('https://www.gogetaroomie.com/');
 preg_match('@/comics/(.+\\.(jpg|png|gif))@', $html, $matches);
 
 if (empty($matches[1])) {
@@ -21,14 +21,14 @@ while (true) {
     }
 
     echo "Downloading {$matches[1]}\n";
-    $url = "http://www.gogetaroomie.com/comics/{$matches[1]}";
+    $url = "https://www.gogetaroomie.com/comics/{$matches[1]}";
     $data = @file_get_contents($url);
     if ($data) {
         file_put_contents("gogetaroomie/{$matches[1]}", $data);
     }
 
     // Find previous page link
-    $regex = '@rel="prev" href="(http://www.gogetaroomie.com/comic/[0-9a-zA-Z-]+)"@';
+    $regex = '@rel="prev" href="(https://www.gogetaroomie.com/comic/[0-9a-zA-Z-]+)"@';
     preg_match($regex, $html, $prevMatch);
 
     if (empty($prevMatch[1])) {
