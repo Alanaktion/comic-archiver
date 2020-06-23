@@ -17,7 +17,7 @@ if (!is_dir('loadingartist')) {
 
 // Download current page's comic, load previous comic webpage, repeat
 while (true) {
-    if (is_file('loadingartist/' . $matches[1])) {
+    if (is_file('loadingartist/' . $matches[2])) {
         return;
     }
 
