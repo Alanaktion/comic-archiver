@@ -44,7 +44,7 @@ while (true) {
         return;
     }
 
-    preg_match('@/comics/(.+\\.(jpg|png|gif))@', $html, $matches);
+    preg_match('@/comics/(([0-9a-zA-Z_-]+\\.(jpg|png|gif))@', $html, $matches);
     if (empty($matches[1])) {
         echo "No image found on page!\n";
         return;
