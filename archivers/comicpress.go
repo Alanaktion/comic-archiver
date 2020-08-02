@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+var protocolMatch = regexp.MustCompile("^https?:")
+
 // ComicPress archiver
 func ComicPress(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix string, prevLinkMatch *regexp.Regexp) {
 	os.MkdirAll("comics/"+dir, os.ModePerm)
@@ -55,7 +57,11 @@ func ComicPress(startURL string, dir string, fileMatch *regexp.Regexp, filePrefi
 
 		// Find link to previous comic
 		links := prevLinkMatch.FindStringSubmatch(s)
-		url = links[1]
+		if protocolMatch.MatchString(links[1]) {
+			url = links[1]
+		} else {
+			url = startURL + links[1]
+		}
 
 		// Wait a bit
 		time.Sleep(500 * time.Millisecond)

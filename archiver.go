@@ -33,10 +33,10 @@ func main() {
 			fmt.Println("Comic: ", c)
 			comic := archivers.Comics[c]
 			if comic.Archiver == "ComicPress" {
-				archivers.ComicPress(comic.StartURL, comic.Dir, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch)
+				archivers.ComicPress(comic.StartURL, c, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch)
 			}
 			if comic.Archiver == "Xkcd" {
-				archivers.Xkcd(comic.StartURL, comic.Dir, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch)
+				archivers.Xkcd(comic.StartURL, c, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch)
 			}
 		}
 		return
