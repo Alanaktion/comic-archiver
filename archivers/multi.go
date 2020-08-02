@@ -10,8 +10,8 @@ import (
 	"time"
 )
 
-// Xkcd comic archiver
-func Xkcd(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix string, prevLinkMatch *regexp.Regexp) {
+// MultiImageGeneric archiver, based on Generic but supporting multiple images per page
+func MultiImageGeneric(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix string, prevLinkMatch *regexp.Regexp) {
 	os.MkdirAll("comics/"+dir, os.ModePerm)
 
 	url := startURL
@@ -29,7 +29,8 @@ func Xkcd(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix stri
 		// Find comic images
 		files := fileMatch.FindAllStringSubmatch(s, 2)
 		for i := range files {
-			path := "comics/" + dir + "/" + files[i][1]
+			basename := basenameMatch.FindStringSubmatch(files[i][1])
+			path := "comics/" + dir + "/" + basename[1]
 			imgurl := filePrefix + files[i][1]
 
 			// Load image and write to file
@@ -39,7 +40,7 @@ func Xkcd(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix stri
 				imgresp, err := http.Get(imgurl)
 				if err != nil {
 					fmt.Println("Failed to load image:", err)
-					os.Exit(1)
+					return
 				}
 
 				buf := new(bytes.Buffer)
@@ -47,17 +48,25 @@ func Xkcd(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix stri
 				err = ioutil.WriteFile(path, buf.Bytes(), 0644)
 				if err != nil {
 					fmt.Println("Failed to write image:", err)
-					os.Exit(1)
+					return
 				}
 			} else {
 				fmt.Println("File exists:", path)
-				os.Exit(0)
+				return
 			}
 		}
 
 		// Find link to previous comic
 		links := prevLinkMatch.FindStringSubmatch(s)
-		url = startURL + links[1]
+		if len(links) < 1 {
+			fmt.Println("No previous URL found")
+			return
+		}
+		if protocolMatch.MatchString(links[1]) {
+			url = links[1]
+		} else {
+			url = startURL + links[1]
+		}
 
 		// Wait a bit
 		time.Sleep(500 * time.Millisecond)

@@ -16,7 +16,7 @@ func main() {
 
 	if action == "help" || action == "h" {
 		fmt.Println("Usage: archiver <action> [params]")
-		fmt.Println("Actions: archive, help")
+		fmt.Println("Actions: archive, all, help")
 		comics := make([]string, len(archivers.Comics))
 		i := 0
 		for k := range archivers.Comics {
@@ -27,17 +27,21 @@ func main() {
 		return
 	}
 
-	if action == "archive" || action == "a" {
-		comics := os.Args[2:]
+	if action == "archive" || action == "a" || action == "all" {
+		var comics []string
+		if action == "all" {
+			comics = make([]string, len(archivers.Comics))
+			i := 0
+			for k := range archivers.Comics {
+				comics[i] = k
+				i++
+			}
+		} else {
+			comics = os.Args[2:]
+		}
 		for _, c := range comics {
-			fmt.Println("Comic: ", c)
-			comic := archivers.Comics[c]
-			if comic.Archiver == "ComicPress" {
-				archivers.ComicPress(comic.StartURL, c, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch)
-			}
-			if comic.Archiver == "Xkcd" {
-				archivers.Xkcd(comic.StartURL, c, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch)
-			}
+			fmt.Println("Starting archive: ", c)
+			archivers.Archive(c, archivers.Comics[c])
 		}
 		return
 	}
