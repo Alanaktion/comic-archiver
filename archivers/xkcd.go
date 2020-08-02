@@ -1,4 +1,4 @@
-package main
+package archivers
 
 import (
 	"bytes"
@@ -10,20 +10,11 @@ import (
 	"time"
 )
 
-// xkcd
+// Xkcd comic archiver
+func Xkcd(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix string, prevLinkMatch *regexp.Regexp) {
+	os.MkdirAll("comics/"+dir, os.ModePerm)
 
-// We start with the current day, then follow the Previous link until we find
-// an image we've already saved before. We also save both the 1x and 2x
-// versions of images, when available.
-
-var start = "https://xkcd.com/"
-var file = regexp.MustCompile("//imgs.xkcd.com/comics/([^\"]+\\.png)")
-var link = regexp.MustCompile("rel=\"prev\" href=\"/([0-9]+/)\"")
-
-func main() {
-	os.MkdirAll("comics/xkcd", os.ModePerm)
-
-	url := start
+	url := startURL
 	for {
 		// Load page HTML
 		resp, err := http.Get(url)
@@ -36,10 +27,10 @@ func main() {
 		s := buf.String()
 
 		// Find comic images
-		files := file.FindAllStringSubmatch(s, 2)
+		files := fileMatch.FindAllStringSubmatch(s, 2)
 		for i := range files {
-			path := "comics/xkcd/" + files[i][1]
-			imgurl := "https://imgs.xkcd.com/comics/" + files[i][1]
+			path := "comics/" + dir + "/" + files[i][1]
+			imgurl := filePrefix + files[i][1]
 
 			// Load image and write to file
 			if _, err := os.Stat(path); os.IsNotExist(err) {
@@ -65,8 +56,8 @@ func main() {
 		}
 
 		// Find link to previous comic
-		links := link.FindStringSubmatch(s)
-		url = start + links[1]
+		links := prevLinkMatch.FindStringSubmatch(s)
+		url = startURL + links[1]
 
 		// Wait a bit
 		time.Sleep(500 * time.Millisecond)
