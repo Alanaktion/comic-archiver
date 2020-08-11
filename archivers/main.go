@@ -181,4 +181,20 @@ var Comics = map[string]Comic{
 		SeqStart:   1,
 		SeqEnd:     679,
 	},
+	"overcompensating": Comic{
+		Archiver:   "Sequential",
+		FilePrefix: "http://www.overcompensating.com/oc/comics/",
+		SeqPattern: "OC%04d.png",
+		SeqStart:   1,
+		SeqEnd:     1543,
+	},
+	// This one hasn't updated in a while, but isn't "finished" yet, so we may
+	// need to update the max comic ID over time.
+	"iverly": Comic{
+		Archiver:   "Sequential",
+		FilePrefix: "http://www.iverly.com/iverly/comics/",
+		SeqPattern: "IVE%04d.png",
+		SeqStart:   1,
+		SeqEnd:     86,
+	},
 }
