@@ -3,7 +3,6 @@ package archivers
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"regexp"
@@ -32,24 +31,9 @@ func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix s
 		basename := basenameMatch.FindStringSubmatch(files[1])
 		path := "comics/" + dir + "/" + basename[1]
 
-		// Load image and write to file
-		if _, err := os.Stat(path); os.IsNotExist(err) {
-			// Image does not exist locally
-			fmt.Println("Downloading:", files[1])
-			imgresp, err := http.Get(imgurl)
-			if err != nil {
-				fmt.Println("Failed to load image:", err)
-				return
-			}
-
-			buf := new(bytes.Buffer)
-			buf.ReadFrom(imgresp.Body)
-			err = ioutil.WriteFile(path, buf.Bytes(), 0644)
-			if err != nil {
-				fmt.Println("Failed to write image:", err)
-				return
-			}
-		} else {
+		// Download image
+		dlErr := downloadFileWait(basename[1], path, imgurl, 500*time.Millisecond)
+		if dlErr.Error() == "file exists" {
 			fmt.Println("File exists:", path)
 			return
 		}

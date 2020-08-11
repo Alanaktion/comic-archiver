@@ -3,7 +3,6 @@ package archivers
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"regexp"
@@ -26,31 +25,14 @@ func MultiImageGeneric(startURL string, dir string, fileMatch *regexp.Regexp, fi
 		buf.ReadFrom(resp.Body)
 		s := buf.String()
 
-		// Find comic images
+		// Find and download comic images
 		files := fileMatch.FindAllStringSubmatch(s, 2)
 		for i := range files {
 			basename := basenameMatch.FindStringSubmatch(files[i][1])
 			path := "comics/" + dir + "/" + basename[1]
 			imgurl := filePrefix + files[i][1]
-
-			// Load image and write to file
-			if _, err := os.Stat(path); os.IsNotExist(err) {
-				// Image does not exist locally
-				fmt.Println("Downloading:", files[i][1])
-				imgresp, err := http.Get(imgurl)
-				if err != nil {
-					fmt.Println("Failed to load image:", err)
-					return
-				}
-
-				buf := new(bytes.Buffer)
-				buf.ReadFrom(imgresp.Body)
-				err = ioutil.WriteFile(path, buf.Bytes(), 0644)
-				if err != nil {
-					fmt.Println("Failed to write image:", err)
-					return
-				}
-			} else {
+			dlErr := downloadFile(files[i][1], path, imgurl)
+			if dlErr.Error() == "file exists" {
 				fmt.Println("File exists:", path)
 				return
 			}

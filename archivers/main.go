@@ -18,6 +18,11 @@ func Archive(dir string, comic Comic) {
 	if comic.Archiver == "Sequential" {
 		Sequential(dir, comic.FilePrefix, comic.SeqPattern, comic.SeqStart, comic.SeqEnd)
 	}
+
+	// Custom archivers
+	if comic.Archiver == "AliceGrove" {
+		AliceGrove(dir, comic.FilePrefix, comic.SeqEnd)
+	}
 }
 
 // Comic base type for all archivers
@@ -196,5 +201,10 @@ var Comics = map[string]Comic{
 		SeqPattern: "IVE%04d.png",
 		SeqStart:   1,
 		SeqEnd:     86,
+	},
+	"alicegrove": Comic{
+		Archiver:   "AliceGrove",
+		FilePrefix: "https://www.questionablecontent.net/images/alice/",
+		SeqEnd:     205,
 	},
 }
