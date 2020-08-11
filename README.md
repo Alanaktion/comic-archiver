@@ -5,21 +5,32 @@ I'm rewriting some of my comic archive scripts in Go because I can.
 
 ## Requirements
 
-A recent (1.8+ probably) Go install. No external packages are used, so no need to put it in GOPATH or install anything extra.
+A recent Go install. You should properly configure GOPATH to build it.
+
+## Building
+
+```bash
+go build .
+```
 
 ## Running
 
-You can either run the scripts directly, for example:
+Build the app, then run the resulting binary:
 
 ```bash
-go run ./src/xkcd
+./comic-archiver <action> [args ...]
 ```
 
-Or you can build and run them:
+For example to archive _xkcd_ and _Whomp!_:
 
 ```bash
-go build ./src/xkcd
-./xkcd
+./comic-archiver archive xkcd whomp
 ```
 
-In either case, the comics will be downloaded to `./comics/<comic name>`.
+Comics will be downloaded to `./comics/<comic name>`.
+
+Running the `help` action will list all available actions and archivers:
+
+```bash
+./comic-archiver help
+```

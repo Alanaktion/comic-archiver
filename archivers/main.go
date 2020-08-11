@@ -15,15 +15,21 @@ func Archive(dir string, comic Comic) {
 	if comic.Archiver == "MultiImageGeneric" {
 		MultiImageGeneric(comic.StartURL, dir, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch)
 	}
+	if comic.Archiver == "Sequential" {
+		Sequential(dir, comic.FilePrefix, comic.SeqPattern, comic.SeqStart, comic.SeqEnd)
+	}
 }
 
-// Comic config struct
+// Comic base type for all archivers
 type Comic struct {
 	Archiver      string
 	StartURL      string
 	FileMatch     *regexp.Regexp
 	FilePrefix    string
 	PrevLinkMatch *regexp.Regexp
+	SeqPattern    string
+	SeqStart      int
+	SeqEnd        int
 }
 
 // Comics supported by the archiver
@@ -112,7 +118,6 @@ var Comics = map[string]Comic{
 		FilePrefix:    "https://www.itswalky.com/wp-content/uploads/",
 		PrevLinkMatch: regexp.MustCompile("href=\"(https://www.itswalky.com/comic/[0-9a-zA-Z/-]+)\" class=\"comic-nav-base comic-nav-previous\""),
 	},
-	// TODO: find a solution to HTTP protocol issues with this one:
 	"letsspeakenglish": Comic{
 		Archiver:      "Generic",
 		StartURL:      "https://www.marycagle.com/letsspeakenglish/134-slow-motion",
@@ -154,5 +159,26 @@ var Comics = map[string]Comic{
 		FileMatch:     regexp.MustCompile("//imgs.xkcd.com/comics/([^\"]+\\.png)"),
 		FilePrefix:    "http://imgs.xkcd.com/comics/",
 		PrevLinkMatch: regexp.MustCompile("rel=\"prev\" href=\"/([0-9]+/)\""),
+	},
+	"wigu-adventures": Comic{
+		Archiver:   "Sequential",
+		FilePrefix: "https://www.wigucomics.com/adventures/comics/",
+		SeqPattern: "WADV%04d.png",
+		SeqStart:   1,
+		SeqEnd:     1179,
+	},
+	"wigu-havin-fun": Comic{
+		Archiver:   "Sequential",
+		FilePrefix: "https://www.wigucomics.com/fun/comics/",
+		SeqPattern: "WOO%04d.png",
+		SeqStart:   1,
+		SeqEnd:     61,
+	},
+	"wigu-when-i-grow-up": Comic{
+		Archiver:   "Sequential",
+		FilePrefix: "https://www.wigucomics.com/whenigrowup/comics/",
+		SeqPattern: "WIGU%04d.jpg",
+		SeqStart:   1,
+		SeqEnd:     679,
 	},
 }
