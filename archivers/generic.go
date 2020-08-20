@@ -33,7 +33,7 @@ func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix s
 
 		// Download image
 		dlErr := downloadFileWait(basename[1], path, imgurl, 500*time.Millisecond)
-		if dlErr.Error() == "file exists" {
+		if dlErr != nil && dlErr.Error() == "file exists" {
 			fmt.Println("File exists:", path)
 			return
 		}

@@ -32,7 +32,7 @@ func MultiImageGeneric(startURL string, dir string, fileMatch *regexp.Regexp, fi
 			path := "comics/" + dir + "/" + basename[1]
 			imgurl := filePrefix + files[i][1]
 			dlErr := downloadFile(files[i][1], path, imgurl)
-			if dlErr.Error() == "file exists" {
+			if dlErr != nil && dlErr.Error() == "file exists" {
 				fmt.Println("File exists:", path)
 				return
 			}
