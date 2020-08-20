@@ -207,4 +207,11 @@ var Comics = map[string]Comic{
 		FilePrefix: "https://www.questionablecontent.net/images/alice/",
 		SeqEnd:     205,
 	},
+	"beefpaper": Comic{
+		Archiver:      "Generic",
+		StartURL:      "http://beefpaper.com/",
+		FileMatch:     regexp.MustCompile("<img src=\"http://beefpaper.com/wp-content/uploads/([^\"]+\\.(jpg|png|gif))"),
+		FilePrefix:    "http://beefpaper.com/wp-content/uploads/",
+		PrevLinkMatch: regexp.MustCompile("navi-prev\" href=\"(http://beefpaper.com/[0-9a-zA-Z/_-]+)\""),
+	},
 }
