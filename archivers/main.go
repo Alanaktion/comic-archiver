@@ -212,6 +212,6 @@ var Comics = map[string]Comic{
 		StartURL:      "http://beefpaper.com/",
 		FileMatch:     regexp.MustCompile("<img src=\"http://beefpaper.com/wp-content/uploads/([^\"]+\\.(jpg|png|gif))"),
 		FilePrefix:    "http://beefpaper.com/wp-content/uploads/",
-		PrevLinkMatch: regexp.MustCompile("navi-prev\" href=\"(http://beefpaper.com/[0-9a-zA-Z/_-]+)\""),
+		PrevLinkMatch: regexp.MustCompile("href=\"(http://beefpaper.com/comic/[0-9a-zA-Z/_-]+)\" class=\"navi comic-nav-previous"),
 	},
 }
