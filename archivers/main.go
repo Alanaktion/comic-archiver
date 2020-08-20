@@ -214,4 +214,11 @@ var Comics = map[string]Comic{
 		FilePrefix:    "http://beefpaper.com/wp-content/uploads/",
 		PrevLinkMatch: regexp.MustCompile("href=\"(http://beefpaper.com/comic/[0-9a-zA-Z/_-]+)\" class=\"navi comic-nav-previous"),
 	},
+	"cucumberquest": Comic{
+		Archiver:      "Generic",
+		StartURL:      "http://cucumber.gigidigi.com/cq/page-931/",
+		FileMatch:     regexp.MustCompile("src=\"http://cucumber.gigidigi.com/wp-content/uploads/([^\"]+\\.(jpg|png|gif))\" class=\"attachment-full size-full"),
+		FilePrefix:    "http://cucumber.gigidigi.com/wp-content/uploads/",
+		PrevLinkMatch: regexp.MustCompile("href=\"(http://cucumber.gigidigi.com/cq/[0-9a-zA-Z/_-]+)\" class=\"webcomic-link webcomic1-link previous"),
+	},
 }
