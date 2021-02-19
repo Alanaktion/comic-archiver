@@ -75,7 +75,7 @@ var Comics = map[string]Comic{
 	},
 	"gogetaroomie": {
 		Archiver:      "Generic",
-		StartURL:      "https://www.gogetaroomie.com/",
+		StartURL:      "https://www.gogetaroomie.com/comic/outro4",
 		FileMatch:     regexp.MustCompile("/comics/(.+\\.(jpg|png|gif))"),
 		FilePrefix:    "https://www.gogetaroomie.com/comics/",
 		PrevLinkMatch: regexp.MustCompile("rel=\"prev\" href=\"(https://www.gogetaroomie.com/comic/[0-9a-zA-Z-]+)\""),
