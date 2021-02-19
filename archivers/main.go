@@ -154,7 +154,7 @@ var Comics = map[string]Comic{
 		Archiver:      "Generic",
 		StartURL:      "http://twogag.com/",
 		FileMatch:     regexp.MustCompile("/comics/(.+\\.(jpg|png|gif))"),
-		FilePrefix:    "http://octopuspie.com/comics/",
+		FilePrefix:    "http://twogag.com/comics/",
 		PrevLinkMatch: regexp.MustCompile("rel=\"prev\" href=\"(http://twogag.com/archives/[0-9a-zA-Z-]+)\""),
 	},
 	"whomp": {
