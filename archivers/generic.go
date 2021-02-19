@@ -13,6 +13,8 @@ import (
 func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix string, prevLinkMatch *regexp.Regexp) {
 	os.MkdirAll("comics/"+dir, os.ModePerm)
 
+	fmt.Println(startURL)
+
 	url := startURL
 	for {
 		// Load page HTML

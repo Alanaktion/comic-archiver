@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 
 	"git.phpizza.com/alan/comic-archiver/archivers"
 )
@@ -23,7 +24,7 @@ func main() {
 			comics[i] = k
 			i++
 		}
-		fmt.Println("Archivers: ", comics)
+		fmt.Println("Archivers:", comics)
 		return
 	}
 
@@ -39,10 +40,14 @@ func main() {
 		} else {
 			comics = os.Args[2:]
 		}
+
+		var wg sync.WaitGroup
+		wg.Add(len(comics))
 		for _, c := range comics {
-			fmt.Println("Starting archive: ", c)
-			archivers.Archive(c, archivers.Comics[c])
+			go archivers.Archive(c, archivers.Comics[c], &wg)
 		}
+		wg.Wait()
+		fmt.Println("Done.")
 		return
 	}
 }
