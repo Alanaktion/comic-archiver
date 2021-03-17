@@ -6,7 +6,7 @@ import (
 	"strings"
 	"sync"
 
-	"git.phpizza.com/alan/comic-archiver/archivers"
+	"github.com/Alanaktion/comic-archiver/archivers"
 )
 
 func main() {

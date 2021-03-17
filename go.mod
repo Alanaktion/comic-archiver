@@ -1,3 +1,3 @@
-module git.phpizza.com/alan/comic-archiver
+module github.com/Alanaktion/comic-archiver
 
 go 1.14
