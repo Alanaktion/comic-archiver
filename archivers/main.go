@@ -7,7 +7,7 @@ import (
 )
 
 var protocolMatch = regexp.MustCompile("^https?:")
-var basenameMatch = regexp.MustCompile("\\/?([^\\/]+\\.[A-Za-z]{3,4})$")
+var basenameMatch = regexp.MustCompile(`\/?([^\/]+\.[A-Za-z]{3,4})$`)
 
 // Archive a comic
 func Archive(dir string, comic Comic, wg *sync.WaitGroup) {
@@ -48,49 +48,49 @@ var Comics = map[string]Comic{
 	"doa": {
 		Archiver:      "Generic",
 		StartURL:      "https://www.dumbingofage.com/",
-		FileMatch:     regexp.MustCompile("/comics/(.+\\.png)"),
+		FileMatch:     regexp.MustCompile(`/comics/(.+\.png)`),
 		FilePrefix:    "https://www.dumbingofage.com/comics/",
 		PrevLinkMatch: regexp.MustCompile("href=\"(https://www.dumbingofage.com/[0-9a-zA-Z/-]+)\" class=\"navi navi-prev\""),
 	},
 	"campcomic": {
 		Archiver:      "Generic",
 		StartURL:      "http://campcomic.com/comic",
-		FileMatch:     regexp.MustCompile("/katie/comics/(.+\\.(jpg|png|gif))"),
+		FileMatch:     regexp.MustCompile(`/katie/comics/(.+\.(jpg|png|gif))`),
 		FilePrefix:    "http://hw1.pa-cdn.com/camp/assets/img/katie/comics/",
 		PrevLinkMatch: regexp.MustCompile("class=\"btn btnPrev\" href=\"(http://campcomic.com/comic/[0-9a-zA-Z-]+)\""),
 	},
 	"gaia": {
 		Archiver:      "Generic",
 		StartURL:      "http://www.sandraandwoo.com/gaia/",
-		FileMatch:     regexp.MustCompile("/gaia/comics/(.+\\.(jpg|png|gif))"),
+		FileMatch:     regexp.MustCompile(`/gaia/comics/(.+\.(jpg|png|gif))`),
 		FilePrefix:    "http://www.sandraandwoo.com/gaia/comics/",
 		PrevLinkMatch: regexp.MustCompile("href=\"(http://www.sandraandwoo.com/gaia/[0-9]{4}/[0-9]+/[0-9]+/[0-9a-zA-Z-]+/?)\" rel=\"prev\""),
 	},
 	"sandraandwoo": {
 		Archiver:      "Generic",
 		StartURL:      "http://www.sandraandwoo.com/",
-		FileMatch:     regexp.MustCompile("/comics/(.+\\.(jpg|png|gif))"),
+		FileMatch:     regexp.MustCompile(`/comics/(.+\.(jpg|png|gif))`),
 		FilePrefix:    "http://www.sandraandwoo.com/comics/",
 		PrevLinkMatch: regexp.MustCompile("href=\"(http://www.sandraandwoo.com/[0-9]{4}/[0-9]+/[0-9]+/[0-9a-zA-Z-]+/?)\" rel=\"prev\""),
 	},
 	"gogetaroomie": {
 		Archiver:      "Generic",
 		StartURL:      "https://www.gogetaroomie.com/comic/outro4",
-		FileMatch:     regexp.MustCompile("/comics/(.+\\.(jpg|png|gif))"),
+		FileMatch:     regexp.MustCompile(`/comics/(.+\.(jpg|png|gif))`),
 		FilePrefix:    "https://www.gogetaroomie.com/comics/",
 		PrevLinkMatch: regexp.MustCompile("rel=\"prev\" href=\"(https://www.gogetaroomie.com/comic/[0-9a-zA-Z-]+)\""),
 	},
 	"kiwiblitz": {
 		Archiver:      "Generic",
 		StartURL:      "https://www.kiwiblitz.com/",
-		FileMatch:     regexp.MustCompile("/comics/([0-9a-zA-Z_-]+\\.(jpg|png|gif))"),
+		FileMatch:     regexp.MustCompile(`/comics/([0-9a-zA-Z_-]+\.(jpg|png|gif))`),
 		FilePrefix:    "https://www.kiwiblitz.com/comics/",
 		PrevLinkMatch: regexp.MustCompile("rel=\"prev\" href=\"(https://www.kiwiblitz.com/comic/[0-9a-zA-Z-]+)\""),
 	},
 	"sleeplessdomain": {
 		Archiver:      "Generic",
 		StartURL:      "https://www.sleeplessdomain.com/",
-		FileMatch:     regexp.MustCompile("/comics/([0-9a-zA-Z_-]+\\.(jpg|png|gif))"),
+		FileMatch:     regexp.MustCompile(`/comics/([0-9a-zA-Z_-]+\.(jpg|png|gif))`),
 		FilePrefix:    "https://www.sleeplessdomain.com/comics/",
 		PrevLinkMatch: regexp.MustCompile("rel=\"prev\" href=\"(https://www.sleeplessdomain.com/comic/[0-9a-zA-Z-]+)\""),
 	},
@@ -118,14 +118,14 @@ var Comics = map[string]Comic{
 	"questionablecontent": {
 		Archiver:      "Generic",
 		StartURL:      "https://www.questionablecontent.net/",
-		FileMatch:     regexp.MustCompile("/comics/(.+\\.(jpg|png|gif))"),
+		FileMatch:     regexp.MustCompile(`/comics/(.+\.(jpg|png|gif))`),
 		FilePrefix:    "https://www.questionablecontent.net/comics/",
 		PrevLinkMatch: regexp.MustCompile("href=\"(view.php\\?comic=[0-9]+)\">Previous"),
 	},
 	"iamarg": {
 		Archiver:      "Generic",
 		StartURL:      "https://iamarg.com/",
-		FileMatch:     regexp.MustCompile("/comics/(.+\\.(jpg|png|gif))"),
+		FileMatch:     regexp.MustCompile(`/comics/(.+\.(jpg|png|gif))`),
 		FilePrefix:    "https://iamarg.com/comics/",
 		PrevLinkMatch: regexp.MustCompile("href=\"(http://iamarg.com/[0-9a-zA-Z/-]+)\" class=\"navi navi-prev\""),
 	},
@@ -139,35 +139,35 @@ var Comics = map[string]Comic{
 	"letsspeakenglish": {
 		Archiver:      "Generic",
 		StartURL:      "https://www.marycagle.com/letsspeakenglish/134-slow-motion",
-		FileMatch:     regexp.MustCompile("/comics/([0-9a-zA-Z_-]+\\.(jpg|png|gif))"),
+		FileMatch:     regexp.MustCompile(`/comics/([0-9a-zA-Z_-]+\.(jpg|png|gif))`),
 		FilePrefix:    "https://www.marycagle.com/comics/",
 		PrevLinkMatch: regexp.MustCompile("rel=\"prev\" href=\"(https://www.marycagle.com/letsspeakenglish/[0-9a-zA-Z-]+)\""),
 	},
 	"loadingartist": {
 		Archiver:      "Generic",
 		StartURL:      "https://loadingartist.com/latest",
-		FileMatch:     regexp.MustCompile("/uploads/([0-9]+/[0-9]+/[0-9a-zA-Z-]+\\.[a-z]{3,4})"),
+		FileMatch:     regexp.MustCompile(`/uploads/([0-9]+/[0-9]+/[0-9a-zA-Z-]+\.[a-z]{3,4})`),
 		FilePrefix:    "https://loadingartist.com/wp-content/uploads/",
 		PrevLinkMatch: regexp.MustCompile("class=\"normal highlight prev comic-thumb\" href=\"(https://loadingartist.com/comic/[0-9a-zA-Z-]+/?)\""),
 	},
 	"octopuspie": {
 		Archiver:      "Generic",
 		StartURL:      "http://www.octopuspie.com/2017-06-05/1023-1026-thats-it/",
-		FileMatch:     regexp.MustCompile("/strippy/(.+\\.(jpg|png|gif))"),
+		FileMatch:     regexp.MustCompile(`/strippy/(.+\.(jpg|png|gif))`),
 		FilePrefix:    "http://www.octopuspie.com/strippy/",
 		PrevLinkMatch: regexp.MustCompile("href=\"(http://www.octopuspie.com/[0-9a-zA-Z/_-]+)\" rel=\"prev\""),
 	},
 	"twogag": {
 		Archiver:      "Generic",
 		StartURL:      "http://twogag.com/",
-		FileMatch:     regexp.MustCompile("/comics/(.+\\.(jpg|png|gif))"),
+		FileMatch:     regexp.MustCompile(`/comics/(.+\.(jpg|png|gif))`),
 		FilePrefix:    "http://twogag.com/comics/",
 		PrevLinkMatch: regexp.MustCompile("rel=\"prev\" href=\"(http://twogag.com/archives/[0-9a-zA-Z-]+)\""),
 	},
 	"whomp": {
 		Archiver:      "Generic",
 		StartURL:      "https://www.whompcomic.com/",
-		FileMatch:     regexp.MustCompile("/comics/(.+\\.(jpg|png|gif))"),
+		FileMatch:     regexp.MustCompile(`/comics/(.+\.(jpg|png|gif))`),
 		FilePrefix:    "https://www.whompcomic.com/comics/",
 		PrevLinkMatch: regexp.MustCompile("rel=\"prev\" href=\"(https://www.whompcomic.com/comic/[0-9a-zA-Z-]+)\""),
 	},
