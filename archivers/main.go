@@ -115,6 +115,13 @@ var Comics = map[string]Comic{
 		FilePrefix:    "https://www.channelate.com/wp-content/uploads/",
 		PrevLinkMatch: regexp.MustCompile("href=\"(https://www.channelate.com/comic/[0-9a-zA-Z/-]+)\" class=\"navi comic-nav-previous navi-prev\""),
 	},
+	"questionablecontent": {
+		Archiver:      "Generic",
+		StartURL:      "https://www.questionablecontent.net/",
+		FileMatch:     regexp.MustCompile("/comics/(.+\\.(jpg|png|gif))"),
+		FilePrefix:    "https://www.questionablecontent.net/comics/",
+		PrevLinkMatch: regexp.MustCompile("href=\"(view.php\\?comic=[0-9]+)\">Previous"),
+	},
 	"iamarg": {
 		Archiver:      "Generic",
 		StartURL:      "https://iamarg.com/",
