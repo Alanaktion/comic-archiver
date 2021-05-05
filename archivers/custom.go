@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// AliceGrove archives Jeph"s custom-coded, semi-broken site
+// AliceGrove archives Jeph's custom-coded, semi-broken site
 func AliceGrove(dir string, filePrefix string, end int) {
 	os.MkdirAll("comics/"+dir, os.ModePerm)
 
