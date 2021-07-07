@@ -10,7 +10,7 @@ import (
 )
 
 // AliceGrove archives Jeph's custom-coded, semi-broken site
-func AliceGrove(dir string, filePrefix string, end int) {
+func AliceGrove(dir string, filePrefix string, end int, skipExisting bool) {
 	os.MkdirAll("comics/"+dir, os.ModePerm)
 
 	jpegs := []int{
@@ -34,8 +34,12 @@ func AliceGrove(dir string, filePrefix string, end int) {
 			name = strconv.FormatInt(int64(i), 10) + ".png"
 		}
 		path := "comics/" + dir + "/" + name
-		imgurl := filePrefix + name
-		err := downloadFileWait(name, path, imgurl, 500*time.Millisecond)
+		imgUrl := filePrefix + name
+		err := downloadFileWait(name, path, imgUrl, 500*time.Millisecond)
+		if err != nil && err.Error() == "file exists" && !skipExisting {
+			fmt.Println("File exists:", path)
+			return
+		}
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -47,8 +51,12 @@ func AliceGrove(dir string, filePrefix string, end int) {
 	for i := range extra {
 		name := extra[i]
 		path := "comics/" + dir + "/" + name
-		imgurl := filePrefix + name
-		err := downloadFileWait(name, path, imgurl, 500*time.Millisecond)
+		imgUrl := filePrefix + name
+		err := downloadFileWait(name, path, imgUrl, 500*time.Millisecond)
+		if err != nil && err.Error() == "file exists" && !skipExisting {
+			fmt.Println("File exists:", path)
+			return
+		}
 		if err != nil {
 			fmt.Println(err)
 			return

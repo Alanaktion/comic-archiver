@@ -10,7 +10,7 @@ import (
 )
 
 // MultiImageGeneric archiver, based on Generic but supporting multiple images per page
-func MultiImageGeneric(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix string, prevLinkMatch *regexp.Regexp) {
+func MultiImageGeneric(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix string, prevLinkMatch *regexp.Regexp, skipExisting bool) {
 	os.MkdirAll("comics/"+dir, os.ModePerm)
 
 	url := startURL
@@ -32,8 +32,12 @@ func MultiImageGeneric(startURL string, dir string, fileMatch *regexp.Regexp, fi
 			path := "comics/" + dir + "/" + basename[1]
 			imgurl := filePrefix + files[i][1]
 			dlErr := downloadFile(files[i][1], path, imgurl)
-			if dlErr != nil && dlErr.Error() == "file exists" {
+			if dlErr != nil && dlErr.Error() == "file exists" && !skipExisting {
 				fmt.Println("File exists:", path)
+				return
+			}
+			if dlErr != nil {
+				fmt.Println("Error:", dlErr.Error())
 				return
 			}
 		}

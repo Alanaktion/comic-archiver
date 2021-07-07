@@ -10,7 +10,7 @@ import (
 )
 
 // Generic archiver supporting ComicPress, etc.
-func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix string, prevLinkMatch *regexp.Regexp) {
+func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix string, prevLinkMatch *regexp.Regexp, skipExisting bool) {
 	os.MkdirAll("comics/"+dir, os.ModePerm)
 
 	fmt.Println(startURL)
@@ -29,14 +29,18 @@ func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix s
 
 		// Find comic image
 		files := fileMatch.FindStringSubmatch(s)
-		imgurl := filePrefix + files[1]
+		imgUrl := filePrefix + files[1]
 		basename := basenameMatch.FindStringSubmatch(files[1])
 		path := "comics/" + dir + "/" + basename[1]
 
 		// Download image
-		dlErr := downloadFileWait(basename[1], path, imgurl, 500*time.Millisecond)
-		if dlErr != nil && dlErr.Error() == "file exists" {
+		dlErr := downloadFileWait(basename[1], path, imgUrl, 500*time.Millisecond)
+		if dlErr != nil && dlErr.Error() == "file exists" && !skipExisting {
 			fmt.Println("File exists:", path)
+			return
+		}
+		if dlErr != nil {
+			fmt.Println("Error:", dlErr.Error())
 			return
 		}
 

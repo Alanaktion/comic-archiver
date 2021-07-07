@@ -10,22 +10,22 @@ var protocolMatch = regexp.MustCompile("^https?:")
 var basenameMatch = regexp.MustCompile(`\/?([^\/]+\.[A-Za-z]{3,4})$`)
 
 // Archive a comic
-func Archive(dir string, comic Comic, wg *sync.WaitGroup) {
+func Archive(dir string, comic Comic, skipExisting bool, wg *sync.WaitGroup) {
 	fmt.Println("Starting archive:", dir)
 
 	if comic.Archiver == "Generic" {
-		Generic(comic.StartURL, dir, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch)
+		Generic(comic.StartURL, dir, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch, skipExisting)
 	}
 	if comic.Archiver == "MultiImageGeneric" {
-		MultiImageGeneric(comic.StartURL, dir, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch)
+		MultiImageGeneric(comic.StartURL, dir, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch, skipExisting)
 	}
 	if comic.Archiver == "Sequential" {
-		Sequential(dir, comic.FilePrefix, comic.SeqPattern, comic.SeqStart, comic.SeqEnd)
+		Sequential(dir, comic.FilePrefix, comic.SeqPattern, comic.SeqStart, comic.SeqEnd, skipExisting)
 	}
 
 	// Custom archivers
 	if comic.Archiver == "AliceGrove" {
-		AliceGrove(dir, comic.FilePrefix, comic.SeqEnd)
+		AliceGrove(dir, comic.FilePrefix, comic.SeqEnd, skipExisting)
 	}
 
 	wg.Done()

@@ -17,14 +17,14 @@ func downloadFile(filename string, path string, url string) error {
 	}
 
 	fmt.Println("Downloading:", filename)
-	imgresp, err := http.Get(url)
+	imgResp, err := http.Get(url)
 	if err != nil {
 		fmt.Println("Failed to load image:", err)
 		return errors.New("http error")
 	}
 
 	buf := new(bytes.Buffer)
-	buf.ReadFrom(imgresp.Body)
+	buf.ReadFrom(imgResp.Body)
 	err = ioutil.WriteFile(path, buf.Bytes(), 0644)
 	if err != nil {
 		fmt.Println("Failed to write image:", err)
