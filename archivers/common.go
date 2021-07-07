@@ -12,7 +12,7 @@ import (
 
 // Download a file
 func downloadFile(filename string, path string, url string) error {
-	if _, err := os.Stat(path); os.IsExist(err) {
+	if _, err := os.Stat(path); err == nil {
 		return errors.New("file exists")
 	}
 

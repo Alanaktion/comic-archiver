@@ -18,7 +18,7 @@ func main() {
 
 	if !all && len(args) == 0 {
 		fmt.Println("Usage: archiver [flags] [comics]")
-		fmt.Println("Flags: -all -continue")
+		flag.PrintDefaults()
 		comics := make([]string, len(archivers.Comics))
 		i := 0
 		for k := range archivers.Comics {
