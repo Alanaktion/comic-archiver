@@ -36,13 +36,16 @@ func AliceGrove(dir string, filePrefix string, end int, skipExisting bool) {
 		path := "comics/" + dir + "/" + name
 		imgUrl := filePrefix + name
 		err := downloadFileWait(name, path, imgUrl, 500*time.Millisecond)
-		if err != nil && err.Error() == "file exists" && !skipExisting {
-			fmt.Println("File exists:", path)
-			return
-		}
 		if err != nil {
-			fmt.Println(err)
-			return
+			if err.Error() == "file exists" {
+				if !skipExisting {
+					fmt.Println("File exists:", path)
+					return
+				}
+			} else {
+				fmt.Println("Error:", err.Error())
+				return
+			}
 		}
 	}
 
@@ -53,13 +56,16 @@ func AliceGrove(dir string, filePrefix string, end int, skipExisting bool) {
 		path := "comics/" + dir + "/" + name
 		imgUrl := filePrefix + name
 		err := downloadFileWait(name, path, imgUrl, 500*time.Millisecond)
-		if err != nil && err.Error() == "file exists" && !skipExisting {
-			fmt.Println("File exists:", path)
-			return
-		}
 		if err != nil {
-			fmt.Println(err)
-			return
+			if err.Error() == "file exists" {
+				if !skipExisting {
+					fmt.Println("File exists:", path)
+					return
+				}
+			} else {
+				fmt.Println("Error:", err.Error())
+				return
+			}
 		}
 	}
 }

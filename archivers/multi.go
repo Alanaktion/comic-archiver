@@ -31,14 +31,17 @@ func MultiImageGeneric(startURL string, dir string, fileMatch *regexp.Regexp, fi
 			basename := basenameMatch.FindStringSubmatch(files[i][1])
 			path := "comics/" + dir + "/" + basename[1]
 			imgurl := filePrefix + files[i][1]
-			dlErr := downloadFile(files[i][1], path, imgurl)
-			if dlErr != nil && dlErr.Error() == "file exists" && !skipExisting {
-				fmt.Println("File exists:", path)
-				return
-			}
-			if dlErr != nil {
-				fmt.Println("Error:", dlErr.Error())
-				return
+			err := downloadFile(files[i][1], path, imgurl)
+			if err != nil {
+				if err.Error() == "file exists" {
+					if !skipExisting {
+						fmt.Println("File exists:", path)
+						return
+					}
+				} else {
+					fmt.Println("Error:", err.Error())
+					return
+				}
 			}
 		}
 

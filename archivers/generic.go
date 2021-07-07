@@ -35,13 +35,16 @@ func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix s
 
 		// Download image
 		dlErr := downloadFileWait(basename[1], path, imgUrl, 500*time.Millisecond)
-		if dlErr != nil && dlErr.Error() == "file exists" && !skipExisting {
-			fmt.Println("File exists:", path)
-			return
-		}
 		if dlErr != nil {
-			fmt.Println("Error:", dlErr.Error())
-			return
+			if dlErr.Error() == "file exists" {
+				if !skipExisting {
+					fmt.Println("File exists:", path)
+					return
+				}
+			} else {
+				fmt.Println("Error:", dlErr.Error())
+				return
+			}
 		}
 
 		// Find link to previous comic
