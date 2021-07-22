@@ -16,6 +16,9 @@ func Archive(dir string, comic Comic, skipExisting bool, wg *sync.WaitGroup) {
 	if comic.Archiver == "Generic" {
 		Generic(comic.StartURL, dir, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch, skipExisting)
 	}
+	if comic.Archiver == "GenericCustomStart" {
+		GenericCustomStart(comic.StartURL, comic.StartMatch, dir, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch, skipExisting)
+	}
 	if comic.Archiver == "MultiImageGeneric" {
 		MultiImageGeneric(comic.StartURL, dir, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch, skipExisting)
 	}
@@ -35,6 +38,7 @@ func Archive(dir string, comic Comic, skipExisting bool, wg *sync.WaitGroup) {
 type Comic struct {
 	Archiver      string
 	StartURL      string
+	StartMatch    *regexp.Regexp
 	FileMatch     *regexp.Regexp
 	FilePrefix    string
 	PrevLinkMatch *regexp.Regexp
@@ -233,5 +237,34 @@ var Comics = map[string]Comic{
 		FileMatch:     regexp.MustCompile("src=\"http://cucumber.gigidigi.com/wp-content/uploads/([^\"]+\\.(jpg|png|gif))\" class=\"attachment-full size-full"),
 		FilePrefix:    "http://cucumber.gigidigi.com/wp-content/uploads/",
 		PrevLinkMatch: regexp.MustCompile("href=\"(http://cucumber.gigidigi.com/cq/[0-9a-zA-Z/_-]+)\" class=\"webcomic-link webcomic1-link previous"),
+	},
+	"treadingground": {
+		Archiver:      "Generic",
+		StartURL:      "https://www.treadingground.com/",
+		FileMatch:     regexp.MustCompile("<img src=\"(https://www.treadingground.com/comics/[^\"]+\\.(jpg|png|gif))"),
+		FilePrefix:    "https://www.treadingground.com/comics/",
+		PrevLinkMatch: regexp.MustCompile("href=\"(https://www.treadingground.com/\\?p=[0-9]+)\" title=\"[^\"]+\" class=\"previous-comic"),
+	},
+	"pbf": {
+		Archiver:      "Generic",
+		StartURL:      "https://pbfcomics.com/",
+		FileMatch:     regexp.MustCompile("<img src='https://pbfcomics.com/wp-content/uploads/([^']+\\.(jpg|png|gif))"),
+		FilePrefix:    "https://pbfcomics.com/wp-content/uploads/",
+		PrevLinkMatch: regexp.MustCompile("href=\"(https://pbfcomics.com/comics/[0-9a-zA-Z/_-]+)\" rel=\"prev\""),
+	},
+	"bunny": {
+		Archiver:      "Generic",
+		StartURL:      "http://www.bunny-comic.com/",
+		FileMatch:     regexp.MustCompile("src='strips/([^']+\\.(jpg|png|gif))"),
+		FilePrefix:    "http://www.bunny-comic.com/strips/",
+		PrevLinkMatch: regexp.MustCompile("id=\"strip\">\\s+<a href=\"([0-9]+\\.html)"),
+	},
+	"licd": {
+		Archiver:      "GenericCustomStart",
+		StartURL:      "https://leasticoulddo.com/",
+		StartMatch:    regexp.MustCompile("href=\"(https://leasticoulddo.com/comic/[0-9]+)\" id=\"latest-comic\""),
+		FileMatch:     regexp.MustCompile("class=\"comic\" src=\"https://leasticoulddo.com/wp-content/uploads/([^\"]+\\.(jpg|png|gif))"),
+		FilePrefix:    "https://leasticoulddo.com/wp-content/uploads/",
+		PrevLinkMatch: regexp.MustCompile("href=\"(https://leasticoulddo.com/comic/[0-9]+)\" rel=\"prev\""),
 	},
 }

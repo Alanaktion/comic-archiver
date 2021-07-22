@@ -63,3 +63,25 @@ func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix s
 		time.Sleep(500 * time.Millisecond)
 	}
 }
+
+func GenericCustomStart(startURL string, startMatch *regexp.Regexp, dir string, fileMatch *regexp.Regexp, filePrefix string, prevLinkMatch *regexp.Regexp, skipExisting bool) {
+	// Load start page HTML
+	resp, err := http.Get(startURL)
+	if err != nil {
+		fmt.Println("Failed to load page:", err)
+		os.Exit(1)
+	}
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(resp.Body)
+	s := buf.String()
+
+	// Find comic start page
+	start := startMatch.FindStringSubmatch(s)
+	if len(start) < 1 {
+		fmt.Println("No start URL found")
+		os.Exit(1)
+	}
+
+	// Start comic download
+	Generic(start[1], dir, fileMatch, filePrefix, prevLinkMatch, skipExisting)
+}
