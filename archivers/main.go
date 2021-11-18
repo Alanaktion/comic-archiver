@@ -274,4 +274,11 @@ var Comics = map[string]Comic{
 		FilePrefix:    "https://www.amazingsuperpowers.com/comics/",
 		PrevLinkMatch: regexp.MustCompile(`href="(https?://www.amazingsuperpowers.com/[0-9a-zA-Z/_-]+)" class="navi navi-prev`),
 	},
+	"littletinythings": {
+		Archiver:      "Generic",
+		StartURL:      "https://littletinythings.com/comic/",
+		FileMatch:     regexp.MustCompile(`src="https://littletinythings.com/comics/([^"]+\.(jpg|png|gif))`),
+		FilePrefix:    "https://littletinythings.com/wp-content/uploads/",
+		PrevLinkMatch: regexp.MustCompile(`rel="prev" href="(https://littletinythings.com/comic/[0-9a-zA-Z/_-]+)"`),
+	},
 }
