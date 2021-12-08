@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
@@ -25,7 +24,7 @@ func downloadFile(filename string, path string, url string) error {
 
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(imgResp.Body)
-	err = ioutil.WriteFile(path, buf.Bytes(), 0644)
+	err = os.WriteFile(path, buf.Bytes(), 0644)
 	if err != nil {
 		fmt.Println("Failed to write image:", err)
 		return errors.New("io error")
