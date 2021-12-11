@@ -281,4 +281,11 @@ var Comics = map[string]Comic{
 		FilePrefix:    "https://littletinythings.com/wp-content/uploads/",
 		PrevLinkMatch: regexp.MustCompile(`rel="prev" href="(https://littletinythings.com/comic/[0-9a-zA-Z/_-]+)"`),
 	},
+	"samandfuzzy": {
+		Archiver:      "Generic",
+		StartURL:      "https://www.samandfuzzy.com/",
+		FileMatch:     regexp.MustCompile(`src="https://www.samandfuzzy.com/img/comics/([^"]+\.(jpg|png|gif))`),
+		FilePrefix:    "https://www.samandfuzzy.com/img/comics/",
+		PrevLinkMatch: regexp.MustCompile(`prev-page"><a href="(https://www.samandfuzzy.com/[0-9]+)"`),
+	},
 }
