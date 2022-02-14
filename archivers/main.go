@@ -278,7 +278,7 @@ var Comics = map[string]Comic{
 		Archiver:      "Generic",
 		StartURL:      "https://littletinythings.com/comic/",
 		FileMatch:     regexp.MustCompile(`src="https://littletinythings.com/comics/([^"]+\.(jpg|png|gif))`),
-		FilePrefix:    "https://littletinythings.com/wp-content/uploads/",
+		FilePrefix:    "https://littletinythings.com/comics/",
 		PrevLinkMatch: regexp.MustCompile(`rel="prev" href="(https://littletinythings.com/comic/[0-9a-zA-Z/_-]+)"`),
 	},
 	"samandfuzzy": {
@@ -287,5 +287,12 @@ var Comics = map[string]Comic{
 		FileMatch:     regexp.MustCompile(`src="https://www.samandfuzzy.com/img/comics/([^"]+\.(jpg|png|gif))`),
 		FilePrefix:    "https://www.samandfuzzy.com/img/comics/",
 		PrevLinkMatch: regexp.MustCompile(`prev-page"><a href="(https://www.samandfuzzy.com/[0-9]+)"`),
+	},
+	"nerfnow": {
+		Archiver:      "Generic",
+		StartURL:      "https://www.nerfnow.com/",
+		FileMatch:     regexp.MustCompile(`src="https://www.nerfnow.com/img/(\d+/\d+\.(jpg|png|gif))`),
+		FilePrefix:    "https://www.nerfnow.com/img/",
+		PrevLinkMatch: regexp.MustCompile(`nav_previous"><a class="nav-link" href="(https://www.nerfnow.com/comic/\d+)"`),
 	},
 }
