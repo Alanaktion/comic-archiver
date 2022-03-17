@@ -295,4 +295,11 @@ var Comics = map[string]Comic{
 		FilePrefix:    "https://www.nerfnow.com/img/",
 		PrevLinkMatch: regexp.MustCompile(`nav_previous"><a class="nav-link" href="(https://www.nerfnow.com/comic/\d+)"`),
 	},
+	"devilscandy": {
+		Archiver:      "Generic",
+		StartURL:      "https://www.devilscandycomic.com/",
+		FileMatch:     regexp.MustCompile(`src="https://www.devilscandycomic.com/comics/([^"]+\.(jpg|png|gif))`),
+		FilePrefix:    "https://www.devilscandycomic.com/comics/",
+		PrevLinkMatch: regexp.MustCompile(`rel="prev" href="(https://www.devilscandycomic.com/comic/[0-9a-zA-Z/_-]+)"`),
+	},
 }
