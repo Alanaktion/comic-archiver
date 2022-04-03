@@ -20,7 +20,7 @@ func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix s
 		// Load page HTML
 		resp, err := http.Get(url)
 		if err != nil {
-			fmt.Println("Failed to load page:", err)
+			fmt.Println(dir, "Failed to load page:", err)
 			os.Exit(1)
 		}
 		buf := new(bytes.Buffer)
@@ -29,6 +29,10 @@ func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix s
 
 		// Find comic image
 		files := fileMatch.FindStringSubmatch(s)
+		if len(files) < 1 {
+			fmt.Println(dir, "No comic image found")
+			return
+		}
 		imgUrl := filePrefix + files[1]
 		basename := basenameMatch.FindStringSubmatch(files[1])
 		path := "comics/" + dir + "/" + basename[1]
@@ -38,11 +42,11 @@ func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix s
 		if dlErr != nil {
 			if dlErr.Error() == "file exists" {
 				if !skipExisting {
-					fmt.Println("File exists:", path)
+					fmt.Println(dir, "File exists:", path)
 					return
 				}
 			} else {
-				fmt.Println("Error:", dlErr.Error())
+				fmt.Println(dir, "Error:", dlErr.Error())
 				return
 			}
 		}
@@ -50,7 +54,7 @@ func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix s
 		// Find link to previous comic
 		links := prevLinkMatch.FindStringSubmatch(s)
 		if len(links) < 1 {
-			fmt.Println("No previous URL found")
+			fmt.Println(dir, "No previous URL found")
 			return
 		}
 		if protocolMatch.MatchString(links[1]) {
@@ -68,7 +72,7 @@ func GenericCustomStart(startURL string, startMatch *regexp.Regexp, dir string, 
 	// Load start page HTML
 	resp, err := http.Get(startURL)
 	if err != nil {
-		fmt.Println("Failed to load page:", err)
+		fmt.Println(dir, "Failed to load page:", err)
 		os.Exit(1)
 	}
 	buf := new(bytes.Buffer)
@@ -78,7 +82,7 @@ func GenericCustomStart(startURL string, startMatch *regexp.Regexp, dir string, 
 	// Find comic start page
 	start := startMatch.FindStringSubmatch(s)
 	if len(start) < 1 {
-		fmt.Println("No start URL found")
+		fmt.Println(dir, "No start URL found")
 		os.Exit(1)
 	}
 
