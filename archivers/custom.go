@@ -80,8 +80,11 @@ func Floraverse(startURL string, dir string, skipExisting bool) {
 
 	fileMatch := regexp.MustCompile(`src="https://floraverse.com/filestore/([^"]+\.(jpg|png|gif))`)
 	filePrefix := "https://floraverse.com/filestore/"
-	prevLinkMatch := regexp.MustCompile(`href="(https://floraverse.com/comic/[0-9a-zA-Z/_-]+)">◀ previous by date`)
+	prevLinkMatch := regexp.MustCompile(`href="(https://floraverse.com/comic/[0-9a-zA-Z/_-]+)">◀ previous( by date|<)`)
 	namePathMatch := regexp.MustCompile(`page.identifier = "https://floraverse.com/comic/([0-9a-zA-Z/_-]+)"`)
+
+	// May want to just read the archive page and get every link from there to avoid navigation jank.
+	// https://floraverse.com/comic/%40%40by-date/
 
 	url := startURL
 	for {
