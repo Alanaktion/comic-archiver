@@ -3,9 +3,13 @@ package archivers
 // Custom one-off archivers that can't be generalized should be implemented here
 
 import (
+	"bytes"
 	"fmt"
+	"net/http"
 	"os"
+	"regexp"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -70,6 +74,62 @@ func AliceGrove(dir string, filePrefix string, end int, skipExisting bool) {
 	}
 }
 
+// Floraverse *could* work fine via the Generic downloader, but I want a better way of naming the files rather than the hashes used in the server filenames.
+func Floraverse(startURL string, dir string, skipExisting bool) {
+	os.MkdirAll("comics/"+dir, os.ModePerm)
+
+	fileMatch := regexp.MustCompile(`src="https://floraverse.com/filestore/([^"]+\.(jpg|png|gif))`)
+	filePrefix := "https://floraverse.com/filestore/"
+	prevLinkMatch := regexp.MustCompile(`href="(https://floraverse.com/comic/[0-9a-zA-Z/_-]+)">◀ previous by date`)
+	namePathMatch := regexp.MustCompile(`page.identifier = "https://floraverse.com/comic/([0-9a-zA-Z/_-]+)"`)
+
+	url := startURL
+	for {
+		s, err := httpGetAsString(url)
+		if err != nil {
+			fmt.Println(dir, "Failed to load page:", err)
+			os.Exit(1)
+		}
+
+		files := fileMatch.FindStringSubmatch(s)
+		if len(files) < 1 {
+			fmt.Println(dir, "No comic image found")
+			return
+		}
+		imgUrl := filePrefix + files[1]
+		destName := strings.ReplaceAll(strings.Trim(namePathMatch.FindStringSubmatch(s)[1], "/"), "/", "_") + "." + files[2]
+		path := "comics/" + dir + "/" + destName
+
+		dlErr := downloadFileWait(destName, path, imgUrl, 500*time.Millisecond)
+		if dlErr != nil {
+			if dlErr.Error() == "file exists" {
+				if !skipExisting {
+					fmt.Println(dir, "File exists:", path)
+					return
+				}
+			} else {
+				fmt.Println(dir, "Error:", dlErr.Error())
+				return
+			}
+		}
+
+		// Find link to previous comic
+		links := prevLinkMatch.FindStringSubmatch(s)
+		if len(links) < 1 {
+			fmt.Println(dir, "No previous URL found")
+			return
+		}
+		if protocolMatch.MatchString(links[1]) {
+			url = links[1]
+		} else {
+			url = startURL + links[1]
+		}
+
+		// Wait a bit
+		time.Sleep(500 * time.Millisecond)
+	}
+}
+
 func intInArray(a int, list []int) bool {
 	for _, b := range list {
 		if b == a {
@@ -77,4 +137,15 @@ func intInArray(a int, list []int) bool {
 		}
 	}
 	return false
+}
+
+func httpGetAsString(url string) (string, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(resp.Body)
+	s := buf.String()
+	return s, nil
 }

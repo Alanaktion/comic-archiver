@@ -30,6 +30,9 @@ func Archive(dir string, comic Comic, skipExisting bool, wg *sync.WaitGroup) {
 	if comic.Archiver == "AliceGrove" {
 		AliceGrove(dir, comic.FilePrefix, comic.SeqEnd, skipExisting)
 	}
+	if comic.Archiver == "Floraverse" {
+		Floraverse(comic.StartURL, dir, skipExisting)
+	}
 
 	wg.Done()
 }
@@ -301,5 +304,9 @@ var Comics = map[string]Comic{
 		FileMatch:     regexp.MustCompile(`src="https://www.devilscandycomic.com/comics/([^"]+\.(jpg|png|gif))`),
 		FilePrefix:    "https://www.devilscandycomic.com/comics/",
 		PrevLinkMatch: regexp.MustCompile(`rel="prev" href="(https://www.devilscandycomic.com/comic/[0-9a-zA-Z/_-]+)"`),
+	},
+	"floraverse": {
+		Archiver: "Floraverse",
+		StartURL: "https://floraverse.com/",
 	},
 }
