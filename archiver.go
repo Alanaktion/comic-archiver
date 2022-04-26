@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	"sync"
 
 	"github.com/Alanaktion/comic-archiver/archivers"
@@ -47,6 +48,7 @@ func main() {
 			comics[i] = k
 			i++
 		}
+		sort.Strings(comics)
 		fmt.Println("Comics:", comics)
 		return
 	}
