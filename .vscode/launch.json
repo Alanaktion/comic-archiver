@@ -9,11 +9,7 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${workspaceFolder}",
-            "args": [
-                "--continue",
-                "floraverse"
-            ]
+            "program": "${workspaceFolder}"
         }
     ]
 }
