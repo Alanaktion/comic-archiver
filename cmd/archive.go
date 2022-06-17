@@ -59,15 +59,24 @@ var archiveCmd = &cobra.Command{
 		// Start archive workers
 		var wg sync.WaitGroup
 		wg.Add(len(comics))
+		var lastErr error
 		for _, c := range comics {
 			val, ok := archivers.Comics[c]
 			if !ok {
 				fmt.Println("Unknown comic:", c)
 				continue
 			}
-			go archivers.Archive(c, val, continueFlag, &wg)
+			chanErr := make(chan error)
+			go archivers.Archive(c, val, continueFlag, &wg, chanErr)
+			err := <-chanErr
+			if err != nil {
+				lastErr = err
+			}
 		}
 		wg.Wait()
+		if lastErr != nil {
+			os.Exit(1)
+		}
 		fmt.Println("Done.")
 	},
 }

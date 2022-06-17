@@ -2,6 +2,7 @@ package archivers
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -10,7 +11,7 @@ import (
 )
 
 // Generic archiver supporting ComicPress, etc.
-func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix string, prevLinkMatch *regexp.Regexp, skipExisting bool) {
+func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix string, prevLinkMatch *regexp.Regexp, skipExisting bool) error {
 	os.MkdirAll("comics/"+dir, os.ModePerm)
 
 	fmt.Println(startURL)
@@ -21,7 +22,7 @@ func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix s
 		resp, err := http.Get(url)
 		if err != nil {
 			fmt.Println(dir, "Failed to load page:", err)
-			os.Exit(1)
+			return err
 		}
 		buf := new(bytes.Buffer)
 		buf.ReadFrom(resp.Body)
@@ -31,7 +32,7 @@ func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix s
 		files := fileMatch.FindStringSubmatch(s)
 		if len(files) < 1 {
 			fmt.Println(dir, "No comic image found")
-			return
+			return errors.New("no comic image found")
 		}
 		imgUrl := filePrefix + files[1]
 		basename := basenameMatch.FindStringSubmatch(files[1])
@@ -43,11 +44,11 @@ func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix s
 			if dlErr.Error() == "file exists" {
 				if !skipExisting {
 					fmt.Println(dir, "File exists:", path)
-					return
+					return nil
 				}
 			} else {
 				fmt.Println(dir, "Error:", dlErr.Error())
-				return
+				return dlErr
 			}
 		}
 
@@ -55,7 +56,7 @@ func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix s
 		links := prevLinkMatch.FindStringSubmatch(s)
 		if len(links) < 1 {
 			fmt.Println(dir, "No previous URL found")
-			return
+			return nil
 		}
 		if protocolMatch.MatchString(links[1]) {
 			url = links[1]
@@ -68,12 +69,12 @@ func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix s
 	}
 }
 
-func GenericCustomStart(startURL string, startMatch *regexp.Regexp, dir string, fileMatch *regexp.Regexp, filePrefix string, prevLinkMatch *regexp.Regexp, skipExisting bool) {
+func GenericCustomStart(startURL string, startMatch *regexp.Regexp, dir string, fileMatch *regexp.Regexp, filePrefix string, prevLinkMatch *regexp.Regexp, skipExisting bool) error {
 	// Load start page HTML
 	resp, err := http.Get(startURL)
 	if err != nil {
 		fmt.Println(dir, "Failed to load page:", err)
-		os.Exit(1)
+		return err
 	}
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(resp.Body)
@@ -83,9 +84,9 @@ func GenericCustomStart(startURL string, startMatch *regexp.Regexp, dir string, 
 	start := startMatch.FindStringSubmatch(s)
 	if len(start) < 1 {
 		fmt.Println(dir, "No start URL found")
-		os.Exit(1)
+		return errors.New("no start url found")
 	}
 
 	// Start comic download
-	Generic(start[1], dir, fileMatch, filePrefix, prevLinkMatch, skipExisting)
+	return Generic(start[1], dir, fileMatch, filePrefix, prevLinkMatch, skipExisting)
 }

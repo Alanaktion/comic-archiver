@@ -14,7 +14,7 @@ import (
 )
 
 // AliceGrove archives Jeph's custom-coded, semi-broken site
-func AliceGrove(dir string, filePrefix string, end int, skipExisting bool) {
+func AliceGrove(dir string, filePrefix string, end int, skipExisting bool) error {
 	os.MkdirAll("comics/"+dir, os.ModePerm)
 
 	jpegs := []int{
@@ -44,11 +44,11 @@ func AliceGrove(dir string, filePrefix string, end int, skipExisting bool) {
 			if err.Error() == "file exists" {
 				if !skipExisting {
 					fmt.Println("File exists:", path)
-					return
+					return nil
 				}
 			} else {
 				fmt.Println("Error:", err.Error())
-				return
+				return err
 			}
 		}
 	}
@@ -64,18 +64,20 @@ func AliceGrove(dir string, filePrefix string, end int, skipExisting bool) {
 			if err.Error() == "file exists" {
 				if !skipExisting {
 					fmt.Println("File exists:", path)
-					return
+					return nil
 				}
 			} else {
 				fmt.Println("Error:", err.Error())
-				return
+				return err
 			}
 		}
 	}
+
+	return nil
 }
 
 // Floraverse *could* work fine via the Generic downloader, but I want a better way of naming the files rather than the hashes used in the server filenames.
-func Floraverse(startURL string, dir string, skipExisting bool) {
+func Floraverse(startURL string, dir string, skipExisting bool) error {
 	os.MkdirAll("comics/"+dir, os.ModePerm)
 
 	fileMatch := regexp.MustCompile(`src="https://floraverse.com/filestore/([^"]+\.(jpg|png|gif))`)
@@ -91,13 +93,13 @@ func Floraverse(startURL string, dir string, skipExisting bool) {
 		s, err := httpGetAsString(url)
 		if err != nil {
 			fmt.Println(dir, "Failed to load page:", err)
-			os.Exit(1)
+			return err
 		}
 
 		files := fileMatch.FindStringSubmatch(s)
 		if len(files) < 1 {
 			fmt.Println(dir, "No comic image found")
-			return
+			return nil
 		}
 		imgUrl := filePrefix + files[1]
 		destName := strings.ReplaceAll(strings.Trim(namePathMatch.FindStringSubmatch(s)[1], "/"), "/", "_") + "." + files[2]
@@ -108,11 +110,11 @@ func Floraverse(startURL string, dir string, skipExisting bool) {
 			if dlErr.Error() == "file exists" {
 				if !skipExisting {
 					fmt.Println(dir, "File exists:", path)
-					return
+					return nil
 				}
 			} else {
 				fmt.Println(dir, "Error:", dlErr.Error())
-				return
+				return nil
 			}
 		}
 
@@ -120,7 +122,7 @@ func Floraverse(startURL string, dir string, skipExisting bool) {
 		links := prevLinkMatch.FindStringSubmatch(s)
 		if len(links) < 1 {
 			fmt.Println(dir, "No previous URL found")
-			return
+			return nil
 		}
 		if protocolMatch.MatchString(links[1]) {
 			url = links[1]

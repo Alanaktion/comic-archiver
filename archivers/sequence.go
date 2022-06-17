@@ -7,7 +7,7 @@ import (
 )
 
 // Sequential archiver downloads images sequentially with predefined prefixes/suffixes
-func Sequential(dir string, filePrefix string, pattern string, start int, end int, skipExisting bool) {
+func Sequential(dir string, filePrefix string, pattern string, start int, end int, skipExisting bool) error {
 	os.MkdirAll("comics/"+dir, os.ModePerm)
 
 	for i := start; i <= end; i++ {
@@ -19,12 +19,14 @@ func Sequential(dir string, filePrefix string, pattern string, start int, end in
 			if err.Error() == "file exists" {
 				if !skipExisting {
 					fmt.Println("File exists:", path)
-					return
+					return nil
 				}
 			} else {
 				fmt.Println("Error:", err.Error())
-				return
+				return err
 			}
 		}
 	}
+
+	return nil
 }

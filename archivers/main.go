@@ -10,28 +10,28 @@ var protocolMatch = regexp.MustCompile("^https?:")
 var basenameMatch = regexp.MustCompile(`\/?([^\/]+\.[A-Za-z]{3,4})$`)
 
 // Archive a comic
-func Archive(dir string, comic Comic, skipExisting bool, wg *sync.WaitGroup) {
+func Archive(dir string, comic Comic, skipExisting bool, wg *sync.WaitGroup, err chan error) {
 	fmt.Println("Starting archive:", dir)
 
 	if comic.Archiver == "Generic" {
-		Generic(comic.StartURL, dir, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch, skipExisting)
+		err <- Generic(comic.StartURL, dir, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch, skipExisting)
 	}
 	if comic.Archiver == "GenericCustomStart" {
-		GenericCustomStart(comic.StartURL, comic.StartMatch, dir, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch, skipExisting)
+		err <- GenericCustomStart(comic.StartURL, comic.StartMatch, dir, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch, skipExisting)
 	}
 	if comic.Archiver == "MultiImageGeneric" {
-		MultiImageGeneric(comic.StartURL, dir, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch, skipExisting)
+		err <- MultiImageGeneric(comic.StartURL, dir, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch, skipExisting)
 	}
 	if comic.Archiver == "Sequential" {
-		Sequential(dir, comic.FilePrefix, comic.SeqPattern, comic.SeqStart, comic.SeqEnd, skipExisting)
+		err <- Sequential(dir, comic.FilePrefix, comic.SeqPattern, comic.SeqStart, comic.SeqEnd, skipExisting)
 	}
 
 	// Custom archivers
 	if comic.Archiver == "AliceGrove" {
-		AliceGrove(dir, comic.FilePrefix, comic.SeqEnd, skipExisting)
+		err <- AliceGrove(dir, comic.FilePrefix, comic.SeqEnd, skipExisting)
 	}
 	if comic.Archiver == "Floraverse" {
-		Floraverse(comic.StartURL, dir, skipExisting)
+		err <- Floraverse(comic.StartURL, dir, skipExisting)
 	}
 
 	wg.Done()

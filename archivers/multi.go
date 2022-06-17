@@ -10,7 +10,7 @@ import (
 )
 
 // MultiImageGeneric archiver, based on Generic but supporting multiple images per page
-func MultiImageGeneric(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix string, prevLinkMatch *regexp.Regexp, skipExisting bool) {
+func MultiImageGeneric(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix string, prevLinkMatch *regexp.Regexp, skipExisting bool) error {
 	os.MkdirAll("comics/"+dir, os.ModePerm)
 
 	url := startURL
@@ -19,7 +19,7 @@ func MultiImageGeneric(startURL string, dir string, fileMatch *regexp.Regexp, fi
 		resp, err := http.Get(url)
 		if err != nil {
 			fmt.Println("Failed to load page:", err)
-			os.Exit(1)
+			return err
 		}
 		buf := new(bytes.Buffer)
 		buf.ReadFrom(resp.Body)
@@ -36,11 +36,11 @@ func MultiImageGeneric(startURL string, dir string, fileMatch *regexp.Regexp, fi
 				if err.Error() == "file exists" {
 					if !skipExisting {
 						fmt.Println("File exists:", path)
-						return
+						return nil
 					}
 				} else {
 					fmt.Println("Error:", err.Error())
-					return
+					return err
 				}
 			}
 		}
@@ -49,7 +49,7 @@ func MultiImageGeneric(startURL string, dir string, fileMatch *regexp.Regexp, fi
 		links := prevLinkMatch.FindStringSubmatch(s)
 		if len(links) < 1 {
 			fmt.Println("No previous URL found")
-			return
+			return nil
 		}
 		if protocolMatch.MatchString(links[1]) {
 			url = links[1]

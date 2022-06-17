@@ -25,4 +25,4 @@ if [[ ! -f ./tailwindcss ]]; then
 fi
 
 echo 'Starting build...'
-./tailwindcss -i app.css -o app.min.css --minify
+./tailwindcss -i app.css -o app.min.css --minify "$@"
