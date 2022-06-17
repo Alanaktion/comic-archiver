@@ -1,4 +1,6 @@
 /comics/
 /comic-archiver
 /comic-archiver.exe
+/server/html/tailwindcss
+/server/html/tailwindcss.exe
 *.log

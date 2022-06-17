@@ -1,17 +1,23 @@
 # Comic Archiver
-*Go Edition*
 
-This is a project to build simplistic archive tools for a large number of webcomics. I'm doing this mostly because I've had too many comics I love disappear with no reasonable way of finding them again.
+This is a Go project to build simplistic archive tools for a large number of webcomics. I'm doing this mostly because I've had too many comics I love disappear with no reasonable way of finding them again.
 
 Completed comics in particular are important to archive, because no matter how good they are and how much people love them, they disappear a lot more often than active ones.
 
 ## Requirements
 
-A recent Go install. You should properly configure GOPATH to build it.
+A recent [Go](https://go.dev) install. You should properly configure GOPATH to build it.
 
 ## Building
 
 ```bash
+go build .
+```
+
+If you modify the web server template files, re-build the CSS first:
+
+```bash
+./server/html/build.sh
 go build .
 ```
 
@@ -23,7 +29,7 @@ Build the app, then run the resulting binary:
 ./comic-archiver <action> [args ...]
 ```
 
-For example to archive _xkcd_ and _Whomp!_:
+For example to archive *xkcd* and *Whomp!*:
 
 ```bash
 ./comic-archiver archive xkcd whomp
@@ -31,10 +37,12 @@ For example to archive _xkcd_ and _Whomp!_:
 
 Comics will be downloaded to `./comics/<comic name>`.
 
-Running the `help` action will list all available actions and archivers:
+Use the `help` flag to list available actions and flags.
 
 ```bash
-./comic-archiver help
+./comic-archiver --help
+./comic-archiver archive --help
+# etc.
 ```
 
 ## Disclaimer
