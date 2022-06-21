@@ -309,4 +309,11 @@ var Comics = map[string]Comic{
 		Archiver: "Floraverse",
 		StartURL: "https://floraverse.com/",
 	},
+	"elephanttown": {
+		Archiver:      "Generic",
+		StartURL:      "https://elephant.town/comic/",
+		FileMatch:     regexp.MustCompile(`src="https://elephant.town/comics/([^"]+\.(jpg|png|gif))`),
+		FilePrefix:    "https://elephant.town/comics/",
+		PrevLinkMatch: regexp.MustCompile(`rel="prev" href="(https://elephant.town/comic/[0-9a-zA-Z/_-]+)"`),
+	},
 }
