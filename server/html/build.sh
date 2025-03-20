@@ -6,7 +6,11 @@
 set -e
 cd "$(dirname ${BASH_SOURCE[0]})"
 
-if [[ ! -f ./tailwindcss ]]; then
+tw="$(which tailwindcss)"
+if [[ "$tw" ]]; then
+    # Tailwind exists globally
+    echo "Using Tailwind: $tw"
+elif [[ ! -f ./tailwindcss ]]; then
     # TODO: accept that Windows still probably exists
     if [[ "$(uname -s)" == "Darwin" ]]; then
         os="macos"
@@ -22,7 +26,10 @@ if [[ ! -f ./tailwindcss ]]; then
     mv "tailwindcss-$os-$arch" tailwindcss
 
     chmod +x tailwindcss
+    tw="./tailwindcss"
+else
+    tw="./tailwindcss"
 fi
 
 echo 'Starting build...'
-./tailwindcss -i app.css -o app.min.css --minify "$@"
+"$tw" -i app.css -o app.min.css --minify "$@"

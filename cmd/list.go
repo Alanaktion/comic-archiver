@@ -21,7 +21,7 @@ var listCmd = &cobra.Command{
 		var comics []string
 		if local {
 			for key := range archivers.Comics {
-				if _, err := os.Stat("comics/" + key); err == nil {
+				if _, err := os.Stat(key); err == nil {
 					comics = append(comics, key)
 				}
 			}

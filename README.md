@@ -11,14 +11,25 @@ A recent [Go](https://go.dev) install. You should properly configure GOPATH to b
 ## Building
 
 ```bash
-go build .
+go build
+```
+
+To install in your GOPATH/bin:
+
+```bash
+go install
+
+# Install auto-completion (optional)
+comic-archiver completion bash > ~/.local/share/bash-completion/completions/comic-archiver
+comic-archiver completion fish > ~/.config/fish/completions/comic-archiver.fish
+comic-archiver completion zsh > ~/.local/share/zsh/site-functions/_comic-archiver
 ```
 
 If you modify the web server template files, re-build the CSS first:
 
 ```bash
 ./server/html/build.sh
-go build .
+go build
 ```
 
 ## Running
@@ -35,7 +46,7 @@ For example to archive *xkcd* and *Whomp!*:
 ./comic-archiver archive xkcd whomp
 ```
 
-Comics will be downloaded to `./comics/<comic name>`.
+Comics will be downloaded to `./comics/<comic name>`. You can change this directory using a config file, by default at `~/.config/comic-archiver.yaml`.
 
 Use the `help` flag to list available actions and flags.
 

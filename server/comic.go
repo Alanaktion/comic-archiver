@@ -2,12 +2,14 @@ package server
 
 import (
 	_ "embed"
-	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"os"
 	"regexp"
+	"slices"
 	"strconv"
+	"strings"
 
 	"github.com/Alanaktion/comic-archiver/archivers"
 )
@@ -25,7 +27,7 @@ func loadComic(title string) (*Page, error) {
 	if !ok {
 		return nil, os.ErrInvalid
 	}
-	path := "comics/" + title
+	path := title
 	info, err := os.Stat(path)
 	if err != nil {
 		return nil, err
@@ -33,7 +35,7 @@ func loadComic(title string) (*Page, error) {
 	if !info.IsDir() {
 		return nil, os.ErrInvalid
 	}
-	files, err := os.ReadDir("comics/" + title)
+	files, err := os.ReadDir(title)
 	if err != nil {
 		return nil, err
 	}
@@ -44,6 +46,8 @@ func loadComic(title string) (*Page, error) {
 		}
 		pages = append(pages, file.Name())
 	}
+	// TODO: sort pages in natural order
+	slices.SortFunc(pages, strings.Compare)
 	return &Page{Title: title, Comic: comic, Pages: pages}, nil
 }
 
@@ -52,7 +56,7 @@ var validComicPath = regexp.MustCompile(`^/comic/(\w+)(/(\d+))?$`)
 func comicHandler(w http.ResponseWriter, req *http.Request) {
 	m := validComicPath.FindStringSubmatch(req.URL.Path)
 	if m == nil {
-		fmt.Println(404, req.URL.Path, "pattern match failed")
+		log.Println(404, req.URL.Path, "pattern match failed")
 		http.NotFound(w, req)
 		return
 	}
@@ -60,7 +64,7 @@ func comicHandler(w http.ResponseWriter, req *http.Request) {
 	title := m[1]
 	p, err := loadComic(title)
 	if err != nil {
-		fmt.Println(404, req.URL.Path, "comic not found")
+		log.Println(404, req.URL.Path, "comic not found")
 		http.NotFound(w, req)
 		return
 	}
@@ -78,7 +82,7 @@ func comicHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	if index < 0 || index >= len(p.Pages) {
-		fmt.Println(404, req.URL.Path, "page not in comic")
+		log.Println(404, req.URL.Path, "page not in comic")
 		http.NotFound(w, req)
 		return
 	}

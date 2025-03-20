@@ -3,22 +3,22 @@ package archivers
 import (
 	"bytes"
 	"errors"
-	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
 )
 
 // Download a file
-func downloadFile(filename string, path string, url string) error {
+func downloadFile(filename string, path string, url string, logger *log.Logger) error {
 	if _, err := os.Stat(path); err == nil {
 		return errors.New("file exists")
 	}
 
-	fmt.Println("Downloading:", filename)
+	logger.Println("Downloading:", filename)
 	imgResp, err := http.Get(url)
 	if err != nil {
-		fmt.Println("Failed to load image:", err)
+		logger.Println("Failed to load image:", err)
 		return errors.New("http error")
 	}
 
@@ -26,7 +26,7 @@ func downloadFile(filename string, path string, url string) error {
 	buf.ReadFrom(imgResp.Body)
 	err = os.WriteFile(path, buf.Bytes(), 0644)
 	if err != nil {
-		fmt.Println("Failed to write image:", err)
+		logger.Println("Failed to write image:", err)
 		return errors.New("io error")
 	}
 
@@ -34,12 +34,30 @@ func downloadFile(filename string, path string, url string) error {
 }
 
 // Download a file and wait after a successful transfer
-func downloadFileWait(filename string, path string, url string, delay time.Duration) error {
-	err := downloadFile(filename, path, url)
+func downloadFileWait(filename string, path string, url string, delay time.Duration, logger *log.Logger) error {
+	err := downloadFile(filename, path, url, logger)
 	if err != nil {
 		return err
 	}
 
 	time.Sleep(delay)
 	return nil
+}
+
+// Check for last known URL for the given comic
+func lastDownloadedPage(comic string) string {
+	data, err := os.ReadFile(comic + "/.last_url")
+	if err != nil {
+		return ""
+	}
+	return string(data)
+}
+
+// Record last known URL for the given comic
+func recordLastPage(comic string, url string, logger *log.Logger) error {
+	err := os.WriteFile(comic+"/.last_url", []byte(url), 0644)
+	if err != nil {
+		logger.Println("Failed to write last URL:", err)
+	}
+	return err
 }

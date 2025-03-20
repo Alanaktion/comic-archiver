@@ -5,6 +5,8 @@ import (
 	"html/template"
 	"net/http"
 	"os"
+	"slices"
+	"strings"
 
 	"github.com/Alanaktion/comic-archiver/archivers"
 )
@@ -22,10 +24,11 @@ func indexHandler(w http.ResponseWriter, req *http.Request) {
 
 	var comics []string
 	for key := range archivers.Comics {
-		if _, err := os.Stat("comics/" + key); err == nil {
+		if _, err := os.Stat(key); err == nil {
 			comics = append(comics, key)
 		}
 	}
+	slices.SortFunc(comics, strings.Compare)
 
 	p := &Page{Comics: comics}
 	indexTemplate.Execute(w, p)

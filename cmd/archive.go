@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"sync"
@@ -10,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var logFlag string
 var allFlag bool
 var continueFlag bool
 
@@ -29,16 +29,23 @@ var archiveCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		// Initialize logger
-		file, err := os.OpenFile("archiver.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		if err != nil {
-			log.Fatal(err)
+		if logFlag != "" {
+			file, err := os.OpenFile(logFlag, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			if err != nil {
+				log.Fatal(err)
+			}
+			log.SetOutput(file)
+			flags := log.Ldate | log.Ltime | log.Lmsgprefix
+			log.SetFlags(flags)
+		} else {
+			flags := log.Ltime | log.Lmsgprefix
+			log.SetFlags(flags)
 		}
-		log.SetOutput(file)
 
 		// Validate args
 		if !allFlag && len(args) == 0 {
-			fmt.Println("Specify at least one comic to download, or use --all.")
-			fmt.Printf("Use '%s list' to see a list of supported comics.\n", os.Args[0])
+			log.Println("Specify at least one comic to download, or use --all.")
+			log.Printf("Use '%s list' to see a list of supported comics.\n", os.Args[0])
 			os.Exit(1)
 			return
 		}
@@ -59,31 +66,23 @@ var archiveCmd = &cobra.Command{
 		// Start archive workers
 		var wg sync.WaitGroup
 		wg.Add(len(comics))
-		var lastErr error
 		for _, c := range comics {
 			val, ok := archivers.Comics[c]
 			if !ok {
-				fmt.Println("Unknown comic:", c)
+				log.Println("Unknown comic:", c)
 				continue
 			}
-			chanErr := make(chan error)
-			go archivers.Archive(c, val, continueFlag, &wg, chanErr)
-			err := <-chanErr
-			if err != nil {
-				lastErr = err
-			}
+			go archivers.Archive(c, val, continueFlag, &wg)
 		}
 		wg.Wait()
-		if lastErr != nil {
-			os.Exit(1)
-		}
-		fmt.Println("Done.")
+		log.Println("Done.")
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(archiveCmd)
 
+	archiveCmd.Flags().StringVarP(&logFlag, "log", "l", "", "Log file to output to, otherwise stderr")
 	archiveCmd.Flags().BoolVarP(&allFlag, "all", "a", false, "Download all supported comics")
 	archiveCmd.Flags().BoolVarP(&continueFlag, "continue", "c", false, "Continue partial downloads, skipping existing files")
 }

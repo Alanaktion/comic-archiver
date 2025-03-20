@@ -1,9 +1,9 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@custom-variant dark (@media (prefers-color-scheme: dark));
 
 @layer base {
-    body {
-        @apply antialiased;
-    }
+  body {
+    @apply antialiased dark:bg-neutral-900 dark:text-neutral-200;
+  }
 }

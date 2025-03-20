@@ -4,7 +4,7 @@ package archivers
 
 import (
 	"bytes"
-	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"regexp"
@@ -14,8 +14,8 @@ import (
 )
 
 // AliceGrove archives Jeph's custom-coded, semi-broken site
-func AliceGrove(dir string, filePrefix string, end int, skipExisting bool) error {
-	os.MkdirAll("comics/"+dir, os.ModePerm)
+func AliceGrove(dir string, filePrefix string, end int, skipExisting bool, logger *log.Logger) error {
+	os.MkdirAll(dir, os.ModePerm)
 
 	jpegs := []int{
 		35, 70, 78, 83, 84, 98, 100, 107, 113, 124,
@@ -37,17 +37,17 @@ func AliceGrove(dir string, filePrefix string, end int, skipExisting bool) error
 		} else {
 			name = strconv.FormatInt(int64(i), 10) + ".png"
 		}
-		path := "comics/" + dir + "/" + name
+		path := dir + "/" + name
 		imgUrl := filePrefix + name
-		err := downloadFileWait(name, path, imgUrl, 500*time.Millisecond)
+		err := downloadFileWait(name, path, imgUrl, 500*time.Millisecond, logger)
 		if err != nil {
 			if err.Error() == "file exists" {
 				if !skipExisting {
-					fmt.Println("File exists:", path)
+					logger.Println("File exists:", path)
 					return nil
 				}
 			} else {
-				fmt.Println("Error:", err.Error())
+				logger.Println("Error:", err.Error())
 				return err
 			}
 		}
@@ -57,17 +57,17 @@ func AliceGrove(dir string, filePrefix string, end int, skipExisting bool) error
 	extra := []string{"109-1.jpg", "109-2.png", "165-1.png", "165-2.jpg"}
 	for i := range extra {
 		name := extra[i]
-		path := "comics/" + dir + "/" + name
+		path := dir + "/" + name
 		imgUrl := filePrefix + name
-		err := downloadFileWait(name, path, imgUrl, 500*time.Millisecond)
+		err := downloadFileWait(name, path, imgUrl, 500*time.Millisecond, logger)
 		if err != nil {
 			if err.Error() == "file exists" {
 				if !skipExisting {
-					fmt.Println("File exists:", path)
+					logger.Println("File exists:", path)
 					return nil
 				}
 			} else {
-				fmt.Println("Error:", err.Error())
+				logger.Println("Error:", err.Error())
 				return err
 			}
 		}
@@ -77,8 +77,8 @@ func AliceGrove(dir string, filePrefix string, end int, skipExisting bool) error
 }
 
 // Floraverse *could* work fine via the Generic downloader, but I want a better way of naming the files rather than the hashes used in the server filenames.
-func Floraverse(startURL string, dir string, skipExisting bool) error {
-	os.MkdirAll("comics/"+dir, os.ModePerm)
+func Floraverse(startURL string, dir string, skipExisting bool, logger *log.Logger) error {
+	os.MkdirAll(dir, os.ModePerm)
 
 	fileMatch := regexp.MustCompile(`src="https://floraverse.com/filestore/([^"]+\.(jpg|png|gif))`)
 	filePrefix := "https://floraverse.com/filestore/"
@@ -89,31 +89,38 @@ func Floraverse(startURL string, dir string, skipExisting bool) error {
 	// https://floraverse.com/comic/%40%40by-date/
 
 	url := startURL
+	last := lastDownloadedPage(dir)
 	for {
 		s, err := httpGetAsString(url)
 		if err != nil {
-			fmt.Println(dir, "Failed to load page:", err)
+			logger.Println("Failed to load page:", err)
 			return err
 		}
 
 		files := fileMatch.FindStringSubmatch(s)
 		if len(files) < 1 {
-			fmt.Println(dir, "No comic image found")
+			logger.Println("No comic image found")
 			return nil
 		}
 		imgUrl := filePrefix + files[1]
 		destName := strings.ReplaceAll(strings.Trim(namePathMatch.FindStringSubmatch(s)[1], "/"), "/", "_") + "." + files[2]
-		path := "comics/" + dir + "/" + destName
+		path := dir + "/" + destName
 
-		dlErr := downloadFileWait(destName, path, imgUrl, 500*time.Millisecond)
+		dlErr := downloadFileWait(destName, path, imgUrl, 500*time.Millisecond, logger)
 		if dlErr != nil {
 			if dlErr.Error() == "file exists" {
 				if !skipExisting {
-					fmt.Println(dir, "File exists:", path)
+					logger.Println("File exists:", path)
 					return nil
 				}
+				if last != "" {
+					logger.Println("Skipping to URL:", last)
+					url = last
+					last = ""
+					continue
+				}
 			} else {
-				fmt.Println(dir, "Error:", dlErr.Error())
+				logger.Println("Error:", dlErr.Error())
 				return nil
 			}
 		}
@@ -121,7 +128,7 @@ func Floraverse(startURL string, dir string, skipExisting bool) error {
 		// Find link to previous comic
 		links := prevLinkMatch.FindStringSubmatch(s)
 		if len(links) < 1 {
-			fmt.Println(dir, "No previous URL found")
+			logger.Println("No previous URL found")
 			return nil
 		}
 		if protocolMatch.MatchString(links[1]) {
@@ -129,6 +136,7 @@ func Floraverse(startURL string, dir string, skipExisting bool) error {
 		} else {
 			url = startURL + links[1]
 		}
+		recordLastPage(dir, url, logger)
 
 		// Wait a bit
 		time.Sleep(500 * time.Millisecond)
