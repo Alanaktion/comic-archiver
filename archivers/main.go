@@ -58,9 +58,9 @@ var Comics = map[string]Comic{
 	"doa": {
 		Archiver:      "Generic",
 		StartURL:      "https://www.dumbingofage.com/",
-		FileMatch:     regexp.MustCompile(`/comics/(.+\.png)`),
-		FilePrefix:    "https://www.dumbingofage.com/comics/",
-		PrevLinkMatch: regexp.MustCompile(`href="(https://www.dumbingofage.com/[0-9a-zA-Z/-]+)" class="navi navi-prev"`),
+		FileMatch:     regexp.MustCompile(`id="spliced-comic".+ src="https://www.dumbingofage.com/wp-content/uploads/([^"]+\.png)`),
+		FilePrefix:    "https://www.dumbingofage.com/wp-content/uploads/",
+		PrevLinkMatch: regexp.MustCompile(`class="previous-comic" href="(https://www.dumbingofage.com/[0-9a-zA-Z/-]+)"`),
 	},
 	"stuckat32": {
 		Archiver:      "Generic",
@@ -230,7 +230,7 @@ var Comics = map[string]Comic{
 		SeqStart:   1,
 		SeqEnd:     1543,
 	},
-		"iverly": {
+	"iverly": {
 		Archiver:   "Sequential",
 		FilePrefix: "http://www.wigucomics.com/iverly/comics/",
 		SeqPattern: "IVE%04d.png",
