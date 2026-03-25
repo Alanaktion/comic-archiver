@@ -12,9 +12,9 @@ pub async fn start(port: u16) {
     let app = Router::new()
         .route("/", get(index_handler))
         .route("/app.css", get(css_handler))
-        .route("/comic/{name}", get(comic_handler))
-        .route("/comic/{name}/{index}", get(comic_page_handler))
-        .route("/file/{name}/{filename}", get(file_handler));
+        .route("/comic/:name", get(comic_handler))
+        .route("/comic/:name/:index", get(comic_page_handler))
+        .route("/file/:name/:filename", get(file_handler));
 
     let addr = format!("0.0.0.0:{port}");
     let listener = tokio::net::TcpListener::bind(&addr).await.expect("Failed to bind");
