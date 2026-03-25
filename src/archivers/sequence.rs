@@ -7,7 +7,7 @@ const DELAY: Duration = Duration::from_millis(500);
 /// `format!`-compatible string and apply it to `i`.
 fn apply_seq_pattern(pattern: &str, i: i32) -> String {
     // Handle the common zero-padded decimal specifiers used in this codebase.
-    // We only need to support the subset actually used: %04d, %03d, %02d, %d.
+    // Pattern lengths: %04d=4, %03d=4, %02d=4, %d=2 characters.
     if let Some(idx) = pattern.find("%04d") {
         return format!("{}{:04}{}", &pattern[..idx], i, &pattern[idx + 4..]);
     }

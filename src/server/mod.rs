@@ -1,34 +1,20 @@
 use axum::{
     Router,
-    extract::{Path, State},
+    extract::Path,
     http::{StatusCode, header},
     response::{Html, IntoResponse, Response},
     routing::get,
 };
-use std::sync::Arc;
 
 use crate::comics::COMICS;
 
-/// Shared state available to all route handlers.
-#[derive(Clone)]
-struct AppState {
-    /// Base directory that contains each comic's sub-directory.
-    /// Empty string means the process has already been chdir'd there.
-    _base: Arc<String>,
-}
-
 pub async fn start(port: u16) {
-    let state = AppState {
-        _base: Arc::new(String::new()),
-    };
-
     let app = Router::new()
         .route("/", get(index_handler))
         .route("/app.css", get(css_handler))
         .route("/comic/{name}", get(comic_handler))
         .route("/comic/{name}/{index}", get(comic_page_handler))
-        .route("/file/{name}/{filename}", get(file_handler))
-        .with_state(state);
+        .route("/file/{name}/{filename}", get(file_handler));
 
     let addr = format!("0.0.0.0:{port}");
     let listener = tokio::net::TcpListener::bind(&addr).await.expect("Failed to bind");
@@ -94,14 +80,12 @@ async fn index_handler() -> Html<String> {
 // ──────────────────────────────────────────────────────────────────────────────
 
 async fn comic_handler(
-    State(_state): State<AppState>,
     Path(name): Path<String>,
 ) -> Result<Html<String>, StatusCode> {
     render_comic_listing(&name)
 }
 
 async fn comic_page_handler(
-    State(_state): State<AppState>,
     Path((name, index_str)): Path<(String, String)>,
 ) -> Result<Html<String>, StatusCode> {
     let index: usize = index_str.parse().map_err(|_| StatusCode::NOT_FOUND)?;
@@ -266,8 +250,13 @@ fn render_comic_page(name: &str, index: usize) -> Result<Html<String>, StatusCod
 async fn file_handler(
     Path((name, filename)): Path<(String, String)>,
 ) -> Result<Response, StatusCode> {
-    // Validate that both path components are safe (no directory traversal)
-    if name.contains('/') || name.contains("..") || filename.contains("..") {
+    // Validate path components to prevent directory traversal.
+    // Allow only normal (non-special) path components in both segments.
+    let is_safe = |s: &str| {
+        let p = std::path::Path::new(s);
+        p.components().all(|c| matches!(c, std::path::Component::Normal(_)))
+    };
+    if !is_safe(&name) || !is_safe(&filename) {
         return Err(StatusCode::BAD_REQUEST);
     }
 
