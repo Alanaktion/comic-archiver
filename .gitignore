@@ -4,3 +4,4 @@
 /server/html/tailwindcss
 /server/html/tailwindcss.exe
 *.log
+/target
