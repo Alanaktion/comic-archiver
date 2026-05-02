@@ -631,4 +631,130 @@ var Comics = map[string]Comic{
 		FilePrefix:    "https://www.witchycomic.com/comics/",
 		PrevLinkMatch: regexp.MustCompile(`class="cc-prev" rel="prev" href="(https://www\.witchycomic\.com/comic/[0-9a-zA-Z/_-]+)"`),
 	},
+
+	// Hiveworks completed comics
+	"misfile": {
+		Archiver:      "Generic",
+		StartURL:      "https://www.misfile.com/",
+		FileMatch:     regexp.MustCompile(`src="https://www\.misfile\.com/comics/([^"]+\.(jpg|jpeg|png|gif))" id="cc-comic"`),
+		FilePrefix:    "https://www.misfile.com/comics/",
+		PrevLinkMatch: regexp.MustCompile(`class="cc-prev" rel="prev" href="(https://www\.misfile\.com/hell-high/[0-9a-zA-Z/_-]+)"`),
+	},
+	"lets-speak-english": {
+		// marycagle.com
+		Archiver:      "Generic",
+		StartURL:      "https://www.marycagle.com/",
+		FileMatch:     regexp.MustCompile(`src="https://www\.marycagle\.com/comics/([^"]+\.(jpg|jpeg|png|gif))" id="cc-comic"`),
+		FilePrefix:    "https://www.marycagle.com/comics/",
+		PrevLinkMatch: regexp.MustCompile(`class="cc-prev" rel="prev" href="(https://www\.marycagle\.com/letsspeakenglish/[0-9a-zA-Z/_-]+)"`),
+	},
+	"to-be-or-not-to-be": {
+		// maricomics.com
+		Archiver:      "Generic",
+		StartURL:      "https://www.maricomics.com/",
+		FileMatch:     regexp.MustCompile(`src="https://www\.maricomics\.com/comics/([^"]+\.(jpg|jpeg|png|gif))" id="cc-comic"`),
+		FilePrefix:    "https://www.maricomics.com/comics/",
+		PrevLinkMatch: regexp.MustCompile(`class="cc-prev" rel="prev" href="(https://www\.maricomics\.com/twbthoth/[0-9a-zA-Z/_-]+)"`),
+	},
+	"demonsmirror": {
+		Archiver:      "Generic",
+		StartURL:      "https://www.demonsmirror.com/",
+		FileMatch:     regexp.MustCompile(`src="https://demonsmirror\.com/comics/([^"]+\.(jpg|jpeg|png|gif))" id="cc-comic"`),
+		FilePrefix:    "https://demonsmirror.com/comics/",
+		PrevLinkMatch: regexp.MustCompile(`class="cc-prev"[^>]* href="(https://demonsmirror\.com/comic/[0-9a-zA-Z/_-]+)"`),
+	},
+	"wonderlust": {
+		Archiver:      "Generic",
+		StartURL:      "https://www.wonderlustcomic.com/",
+		FileMatch:     regexp.MustCompile(`src="https://www\.wonderlustcomic\.com/comics/([^"]+\.(jpg|jpeg|png|gif))" id="cc-comic"`),
+		FilePrefix:    "https://www.wonderlustcomic.com/comics/",
+		PrevLinkMatch: regexp.MustCompile(`class="cc-prev" rel="prev" href="(https://www\.wonderlustcomic\.com/comic/[0-9a-zA-Z/_-]+)"`),
+	},
+	"monster-pulse": {
+		Archiver:      "Generic",
+		StartURL:      "https://www.monster-pulse.com/",
+		FileMatch:     regexp.MustCompile(`src="https://www\.monster-pulse\.com/comics/([^"]+\.(jpg|jpeg|png|gif))" id="cc-comic"`),
+		FilePrefix:    "https://www.monster-pulse.com/comics/",
+		PrevLinkMatch: regexp.MustCompile(`class="cc-prev" rel="prev" href="(https://www\.monster-pulse\.com/comic/[0-9a-zA-Z/_-]+)"`),
+	},
+	"check-please": {
+		Archiver:      "MultiImageGeneric",
+		StartURL:      "https://www.checkpleasecomic.com/",
+		FileMatch:     regexp.MustCompile(`src="(https://www\.checkpleasecomic\.com/comics/[^"]+\.(jpg|jpeg|png|gif))"`),
+		FilePrefix:    "",
+		PrevLinkMatch: regexp.MustCompile(`class="cc-prev" rel="prev" href="(https://www\.checkpleasecomic\.com/comic/[0-9a-zA-Z/_-]+)"`),
+	},
+	"skullkickers": {
+		// No www prefix
+		Archiver:      "Generic",
+		StartURL:      "https://comic.skullkickers.com/",
+		FileMatch:     regexp.MustCompile(`src="https://comic\.skullkickers\.com/comics/([^"]+\.(jpg|jpeg|png|gif))" id="cc-comic"`),
+		FilePrefix:    "https://comic.skullkickers.com/comics/",
+		PrevLinkMatch: regexp.MustCompile(`class="cc-prev" rel="prev" href="(https://comic\.skullkickers\.com/comic/[0-9a-zA-Z/_-]+)"`),
+	},
+	"snarlbear": {
+		Archiver:      "Generic",
+		StartURL:      "https://www.snarlbear.com/",
+		FileMatch:     regexp.MustCompile(`src="https://www\.snarlbear\.com/comics/([^"]+\.(jpg|jpeg|png|gif))" id="cc-comic"`),
+		FilePrefix:    "https://www.snarlbear.com/comics/",
+		PrevLinkMatch: regexp.MustCompile(`class="cc-prev" rel="prev" href="(https://www\.snarlbear\.com/comic/[0-9a-zA-Z/_-]+)"`),
+	},
+	"2slices": {
+		Archiver:      "Generic",
+		StartURL:      "https://www.2slicescomic.com/",
+		FileMatch:     regexp.MustCompile(`src="https://www\.2slicescomic\.com/comics/([^"]+\.(jpg|jpeg|png|gif))" id="cc-comic"`),
+		FilePrefix:    "https://www.2slicescomic.com/comics/",
+		PrevLinkMatch: regexp.MustCompile(`class="cc-prev" rel="prev" href="(https://www\.2slicescomic\.com/comic/[0-9a-zA-Z/_-]+)"`),
+	},
+	"lighter-than-heir": {
+		Archiver:      "Generic",
+		StartURL:      "https://www.lighterthanheir.com/",
+		FileMatch:     regexp.MustCompile(`src="https://www\.lighterthanheir\.com/comics/([^"]+\.(jpg|jpeg|png|gif))" id="cc-comic"`),
+		FilePrefix:    "https://www.lighterthanheir.com/comics/",
+		PrevLinkMatch: regexp.MustCompile(`class="cc-prev" rel="prev" href="(https://www\.lighterthanheir\.com/comic/[0-9a-zA-Z/_-]+)"`),
+	},
+	"lost-nightmare": {
+		Archiver:      "Generic",
+		StartURL:      "https://www.lostnightmare.com/",
+		FileMatch:     regexp.MustCompile(`src="https://www\.lostnightmare\.com/comics/([^"]+\.(jpg|jpeg|png|gif))" id="cc-comic"`),
+		FilePrefix:    "https://www.lostnightmare.com/comics/",
+		PrevLinkMatch: regexp.MustCompile(`class="cc-prev" rel="prev" href="(https://www\.lostnightmare\.com/comic/[0-9a-zA-Z/_-]+)"`),
+	},
+	"machall": {
+		Archiver:      "Generic",
+		StartURL:      "https://www.machall.com/",
+		FileMatch:     regexp.MustCompile(`src="https://www\.machall\.com/comics/([^"]+\.(jpg|jpeg|png|gif))" id="cc-comic"`),
+		FilePrefix:    "https://www.machall.com/comics/",
+		PrevLinkMatch: regexp.MustCompile(`class="cc-prev"[^>]* href="(https://www\.machall\.com/comic/[0-9a-zA-Z/_-]+)"`),
+	},
+	"street-fighter": {
+		Archiver:      "Generic",
+		StartURL:      "https://www.streetfightercomics.com/",
+		FileMatch:     regexp.MustCompile(`src="https://www\.streetfightercomics\.com/comics/([^"]+\.(jpg|jpeg|png|gif))" id="cc-comic"`),
+		FilePrefix:    "https://www.streetfightercomics.com/comics/",
+		PrevLinkMatch: regexp.MustCompile(`class="cc-prev" rel="prev" href="(https://www\.streetfightercomics\.com/comic/[0-9a-zA-Z/_-]+)"`),
+	},
+	"beeserker": {
+		// HTTP only (broken SSL), WordPress-based
+		Archiver:      "Generic",
+		StartURL:      "http://www.beeserker.com/",
+		FileMatch:     regexp.MustCompile(`id="comic-1" class="comicpane"><img src="(http://www\.beeserker\.com/comics/[^"]+\.(jpg|jpeg|png|gif))"`),
+		FilePrefix:    "",
+		PrevLinkMatch: regexp.MustCompile(`class="nav-previous"><a href="(http://www\.beeserker\.com/comics/[0-9a-zA-Z/_-]+/)" rel="prev"`),
+	},
+	"sssscomic": {
+		// Stand Still. Stay Silent - custom PHP site, adventure 2
+		Archiver:      "Generic",
+		StartURL:      "https://www.sssscomic.com/comic2.php?page=560",
+		FileMatch:     regexp.MustCompile(`class='comicnormal' src="adv2_comicpages/(\S+\.jpg)`),
+		FilePrefix:    "http://sssscomic.com/adv2_comicpages/",
+		PrevLinkMatch: regexp.MustCompile(`href='(\?page=[0-9]+)'`),
+	},
+	"sufficiently-remarkable": {
+		Archiver:      "Generic",
+		StartURL:      "http://sufficientlyremarkable.com/",
+		FileMatch:     regexp.MustCompile(`src=['"]http://sufficientlyremarkable\.com/images/comics/([^'"]+\.(jpg|jpeg|png|gif))['"]`),
+		FilePrefix:    "http://sufficientlyremarkable.com/images/comics/",
+		PrevLinkMatch: regexp.MustCompile(`class="comicPagination nav-prev" href="(http://sufficientlyremarkable\.com/[^"]+)"`),
+	},
 }

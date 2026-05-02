@@ -27,7 +27,7 @@ func MultiImageGeneric(startURL string, dir string, fileMatch *regexp.Regexp, fi
 		s := buf.String()
 
 		// Find and download comic images
-		files := fileMatch.FindAllStringSubmatch(s, 2)
+		files := fileMatch.FindAllStringSubmatch(s, -1)
 		for i := range files {
 			basename := basenameMatch.FindStringSubmatch(files[i][1])
 			path := dir + "/" + basename[1]
