@@ -11,6 +11,9 @@ import (
 
 // Download a file
 func downloadFile(filename string, path string, url string, logger *log.Logger) error {
+	// TODO: support glob matching so any file extension can be considered,
+	// e.g. when used with `python3 -m imgfind.teeny -f webp {}`.
+	// Alternatively, start using my gallery-dl extractor + archive matching.
 	if _, err := os.Stat(path); err == nil {
 		return errors.New("file exists")
 	}

@@ -5,8 +5,10 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	neturl "net/url"
 	"os"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -65,10 +67,27 @@ func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix s
 			logger.Println("No previous URL found")
 			return nil
 		}
-		if protocolMatch.MatchString(links[1]) {
+		if strings.HasPrefix(links[1], "https://") || strings.HasPrefix(links[1], "http://") {
 			url = links[1]
+		} else if protocolMatch.MatchString(links[1]) {
+			// Malformed URL like "https:/path" (no host) — resolve against current page's origin
+			if u, err := neturl.Parse(url); err == nil {
+				path := links[1][strings.Index(links[1], ":")+1:]
+				url = u.Scheme + "://" + u.Host + path
+			} else {
+				url = links[1]
+			}
 		} else {
-			url = startURL + links[1]
+			// Relative URL: resolve against current page URL
+			if base, err := neturl.Parse(url); err == nil {
+				if ref, err := neturl.Parse(links[1]); err == nil {
+					url = base.ResolveReference(ref).String()
+				} else {
+					url = startURL + links[1]
+				}
+			} else {
+				url = startURL + links[1]
+			}
 		}
 		recordLastPage(dir, url, logger)
 
