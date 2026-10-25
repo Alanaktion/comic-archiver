@@ -4,6 +4,7 @@ package archivers
 
 import (
 	"bytes"
+	"errors"
 	"log"
 	"net/http"
 	"os"
@@ -89,6 +90,7 @@ func Floraverse(startURL string, dir string, skipExisting bool, logger *log.Logg
 	// https://floraverse.com/comic/%40%40by-date/
 
 	url := startURL
+	seen := map[string]bool{url: true}
 	last := lastDownloadedPage(dir)
 	for {
 		s, err := httpGetAsString(url)
@@ -136,9 +138,186 @@ func Floraverse(startURL string, dir string, skipExisting bool, logger *log.Logg
 		} else {
 			url = startURL + links[1]
 		}
+		if seen[url] {
+			logger.Println("Already visited, stopping:", url)
+			return nil
+		}
+		seen[url] = true
 		recordLastPage(dir, url, logger)
 
 		// Wait a bit
+		time.Sleep(500 * time.Millisecond)
+	}
+}
+
+// Monochrome post URLs aren't in chronological order, so files are prefixed with the post's publish date and time to make them sort in reading order.
+func Monochrome(startURL string, dir string, skipExisting bool, logger *log.Logger) error {
+	os.MkdirAll(dir, os.ModePerm)
+
+	fileMatch := regexp.MustCompile(`id="comic">\s*(?:<a [^>]*>)?\s*<img src="([^"]+\.(jpg|jpeg|png|gif))"`)
+	prevLinkMatch := regexp.MustCompile(`href="([^"]+)" class="comic-nav-base comic-nav-previous"`)
+	dateMatch := regexp.MustCompile(`class="post-date">([^<]+)</span>\s*<span class="posted-at">at&nbsp;</span><span class="post-time">([^<]+)</span>`)
+	slugMatch := regexp.MustCompile(`/comic/([^/]+)/`)
+
+	url := startURL
+	seen := map[string]bool{url: true}
+	last := lastDownloadedPage(dir)
+	for {
+		s, err := httpGetAsString(url)
+		if err != nil {
+			logger.Println("Failed to load page:", err)
+			return err
+		}
+
+		files := fileMatch.FindStringSubmatch(s)
+		if len(files) < 1 {
+			// Some posts are text-only announcements; skip them
+			logger.Println("No comic image found, skipping:", url)
+			links := prevLinkMatch.FindStringSubmatch(s)
+			if len(links) < 1 {
+				logger.Println("No previous URL found")
+				return nil
+			}
+			url = links[1]
+			if seen[url] {
+				logger.Println("Already visited, stopping:", url)
+				return nil
+			}
+			seen[url] = true
+			recordLastPage(dir, url, logger)
+			time.Sleep(500 * time.Millisecond)
+			continue
+		}
+		dates := dateMatch.FindStringSubmatch(s)
+		if len(dates) < 1 {
+			logger.Println("No post date found")
+			return errors.New("no post date found")
+		}
+		published, err := time.Parse("January 2, 2006 3:04 pm", dates[1]+" "+dates[2])
+		if err != nil {
+			logger.Println("Failed to parse post date:", err)
+			return err
+		}
+
+		// The home page has no slug, so name by the image file instead
+		name := published.Format("2006-01-02_1504") + "_" + files[1][strings.LastIndex(files[1], "/")+1:]
+		if slug := slugMatch.FindStringSubmatch(url); len(slug) > 1 {
+			name = published.Format("2006-01-02_1504") + "_" + slug[1] + "." + files[2]
+		}
+		path := dir + "/" + name
+
+		dlErr := downloadFileWait(name, path, files[1], 500*time.Millisecond, logger)
+		if dlErr != nil {
+			if dlErr.Error() == "file exists" {
+				if !skipExisting {
+					logger.Println("File exists:", path)
+					return nil
+				}
+				if last != "" {
+					logger.Println("Skipping to URL:", last)
+					url = last
+					last = ""
+					continue
+				}
+			} else {
+				logger.Println("Error:", dlErr.Error())
+				return dlErr
+			}
+		}
+
+		links := prevLinkMatch.FindStringSubmatch(s)
+		if len(links) < 1 {
+			logger.Println("No previous URL found")
+			return nil
+		}
+		url = links[1]
+		if seen[url] {
+			logger.Println("Already visited, stopping:", url)
+			return nil
+		}
+		seen[url] = true
+		recordLastPage(dir, url, logger)
+
+		time.Sleep(500 * time.Millisecond)
+	}
+}
+
+// LoadingArtist serves resized, hash-named renditions on the page, so build the URL of the full-size original from the comic's slug instead.
+func LoadingArtist(startURL string, dir string, skipExisting bool, logger *log.Logger) error {
+	os.MkdirAll(dir, os.ModePerm)
+
+	slugMatch := regexp.MustCompile(`content="https://loadingartist.com/comic/([^/"]+)/"`)
+	dateMatch := regexp.MustCompile(`<time datetime=(\d{4}-\d{2}-\d{2})>`)
+	prevLinkMatch := regexp.MustCompile(`<a title=Previous href=(/comic/[^ >]+/)`)
+
+	url := startURL
+	seen := map[string]bool{url: true}
+	last := lastDownloadedPage(dir)
+	for {
+		s, err := httpGetAsString(url)
+		if err != nil {
+			logger.Println("Failed to load page:", err)
+			return err
+		}
+
+		slug := slugMatch.FindStringSubmatch(s)
+		date := dateMatch.FindStringSubmatch(s)
+		if len(slug) < 2 || len(date) < 2 {
+			logger.Println("No comic slug or date found:", url)
+			return errors.New("no comic found")
+		}
+
+		// Originals are not linked anywhere, so probe for the extension
+		var imgUrl, ext string
+		for _, e := range []string{"png", "jpg", "gif"} {
+			u := "https://loadingartist.com/comic/" + slug[1] + "/" + slug[1] + "." + e
+			if resp, err := http.Head(u); err == nil {
+				resp.Body.Close()
+				if resp.StatusCode == http.StatusOK {
+					imgUrl, ext = u, e
+					break
+				}
+			}
+		}
+		if imgUrl == "" {
+			logger.Println("No comic image found:", url)
+			return errors.New("no comic image found")
+		}
+
+		name := date[1] + "_" + slug[1] + "." + ext
+		path := dir + "/" + name
+		dlErr := downloadFileWait(name, path, imgUrl, 500*time.Millisecond, logger)
+		if dlErr != nil {
+			if dlErr.Error() == "file exists" {
+				if !skipExisting {
+					logger.Println("File exists:", path)
+					return nil
+				}
+				if last != "" {
+					logger.Println("Skipping to URL:", last)
+					url = last
+					last = ""
+					continue
+				}
+			} else {
+				logger.Println("Error:", dlErr.Error())
+				return dlErr
+			}
+		}
+
+		links := prevLinkMatch.FindStringSubmatch(s)
+		if len(links) < 1 {
+			logger.Println("No previous URL found")
+			return nil
+		}
+		url = "https://loadingartist.com" + links[1]
+		if seen[url] {
+			logger.Println("Already visited, stopping:", url)
+			return nil
+		}
+		seen[url] = true
+		recordLastPage(dir, url, logger)
+
 		time.Sleep(500 * time.Millisecond)
 	}
 }

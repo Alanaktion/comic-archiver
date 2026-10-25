@@ -15,16 +15,22 @@ var basenameMatch = regexp.MustCompile(`\/?([^\/]+\.[A-Za-z]{3,4})$`)
 func Archive(dir string, comic Comic, skipExisting bool, wg *sync.WaitGroup) {
 	prefix := fmt.Sprintf("[%s] ", dir)
 	logger := log.New(log.Writer(), prefix, log.Flags())
+	defer wg.Done()
+	defer func() {
+		if r := recover(); r != nil {
+			logger.Println("Archiver crashed:", r)
+		}
+	}()
 	logger.Println("Starting archive")
 
 	if comic.Archiver == "Generic" {
-		Generic(comic.StartURL, dir, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch, skipExisting, logger)
+		Generic(comic.StartURL, dir, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch, comic.NamePrefixMatch, skipExisting, logger)
 	}
 	if comic.Archiver == "GenericCustomStart" {
-		GenericCustomStart(comic.StartURL, comic.StartMatch, dir, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch, skipExisting, logger)
+		GenericCustomStart(comic.StartURL, comic.StartMatch, dir, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch, comic.NamePrefixMatch, skipExisting, logger)
 	}
 	if comic.Archiver == "MultiImageGeneric" {
-		MultiImageGeneric(comic.StartURL, dir, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch, skipExisting, logger)
+		MultiImageGeneric(comic.StartURL, dir, comic.FileMatch, comic.FilePrefix, comic.PrevLinkMatch, comic.NamePrefixMatch, skipExisting, logger)
 	}
 	if comic.Archiver == "Sequential" {
 		Sequential(dir, comic.FilePrefix, comic.SeqPattern, comic.SeqStart, comic.SeqEnd, skipExisting, logger)
@@ -38,7 +44,13 @@ func Archive(dir string, comic Comic, skipExisting bool, wg *sync.WaitGroup) {
 		Floraverse(comic.StartURL, dir, skipExisting, logger)
 	}
 
-	wg.Done()
+	if comic.Archiver == "LoadingArtist" {
+		LoadingArtist(comic.StartURL, dir, skipExisting, logger)
+	}
+	if comic.Archiver == "Monochrome" {
+		Monochrome(comic.StartURL, dir, skipExisting, logger)
+	}
+
 }
 
 // Comic base type for all archivers
@@ -49,9 +61,11 @@ type Comic struct {
 	FileMatch     *regexp.Regexp
 	FilePrefix    string
 	PrevLinkMatch *regexp.Regexp
-	SeqPattern    string
-	SeqStart      int
-	SeqEnd        int
+	// Optional: capture group 1 from the page HTML is prefixed to the filename
+	NamePrefixMatch *regexp.Regexp
+	SeqPattern      string
+	SeqStart        int
+	SeqEnd          int
 }
 
 // Comics supported by the archiver
@@ -83,15 +97,15 @@ var Comics = map[string]Comic{
 		Archiver: "Generic",
 		// StartURL:      "https://www.fragilestory.com/fragile/",
 		// Original source seems to be gone, this mirror works for now.
-		StartURL:      "https://fragile.webcomic.ws/",
-		FileMatch:     regexp.MustCompile(`https://img.comicfury.com/comics/245/(.+\.(jpg|jpeg|png|gif))`),
-		FilePrefix:    "https://img.comicfury.com/comics/245/",
-		PrevLinkMatch: regexp.MustCompile(`href="(/comics/[0-9]+)" rel="prev"`),
+		StartURL:        "https://fragile.webcomic.ws/",
+		FileMatch:       regexp.MustCompile(`https://img.comicfury.com/comics/245/(.+\.(jpg|jpeg|png|gif))`),
+		FilePrefix:      "https://img.comicfury.com/comics/245/",
+		PrevLinkMatch:   regexp.MustCompile(`<link rel="prev" href="(/comics/[0-9]+)/?"`),
+		NamePrefixMatch: regexp.MustCompile(`alt="Page (\d+)"`),
 	},
 	"gaia": {
-		// TODO: find correct end-page URL for original run
 		Archiver:      "Generic",
-		StartURL:      "https://www.sandraandwoo.com/gaia/2023/03/25/some-more-great-youtube-channels/",
+		StartURL:      "https://www.sandraandwoo.com/gaia/",
 		FileMatch:     regexp.MustCompile(`/gaia/comics/(.+\.(jpg|jpeg|png|gif))`),
 		FilePrefix:    "https://www.sandraandwoo.com/gaia/comics/",
 		PrevLinkMatch: regexp.MustCompile(`href="(https?://www.sandraandwoo.com/gaia/[0-9]{4}/[0-9]+/[0-9]+/[0-9a-zA-Z-]+/?)" rel="prev"`),
@@ -134,14 +148,14 @@ var Comics = map[string]Comic{
 	"superredundant": {
 		Archiver:      "Generic",
 		StartURL:      "http://superredundant.com/",
-		FileMatch:     regexp.MustCompile(`<img src="http://superredundant.com/wp-content/uploads/([^"]+\.(jpg|jpeg|png|gif))`),
+		FileMatch:     regexp.MustCompile(`<img src="https?://superredundant.com/wp-content/uploads/([^"]+\.(jpg|jpeg|png|gif))`),
 		FilePrefix:    "http://superredundant.com/wp-content/uploads/",
-		PrevLinkMatch: regexp.MustCompile(`href="(http://superredundant.com/[\?0-9a-zA-Z/=-]+)" class="navi comic-nav-previous navi-prev"`),
+		PrevLinkMatch: regexp.MustCompile(`href="(https?://superredundant.com/[\?0-9a-zA-Z/=-]+)" class="navi comic-nav-previous navi-prev"`),
 	},
 	"gunnerkrigg": {
 		Archiver:      "Generic",
 		StartURL:      "https://www.gunnerkrigg.com/",
-		FileMatch:     regexp.MustCompile(`class="comic_image" src="/comics/([0-9]+\.(jpg|jpeg|png|gif))"`),
+		FileMatch:     regexp.MustCompile(`class="comic_image" src="/comics/([0-9]+\.(jpg|jpeg|png|gif))(?:\?[^"]*)?"`),
 		FilePrefix:    "https://www.gunnerkrigg.com/comics/",
 		PrevLinkMatch: regexp.MustCompile(`href="(\?p=[0-9]+)"><img src="/images/prev`),
 	},
@@ -157,7 +171,7 @@ var Comics = map[string]Comic{
 		StartURL:      "https://www.questionablecontent.net/",
 		FileMatch:     regexp.MustCompile(`/comics/(.+\.(jpg|jpeg|png|gif))`),
 		FilePrefix:    "https://www.questionablecontent.net/comics/",
-		PrevLinkMatch: regexp.MustCompile(`href="(view.php\?comic=[0-9]+)">Previous`),
+		PrevLinkMatch: regexp.MustCompile(`href="(/view.php\?comic=[0-9]+)">Previous`),
 	},
 	"iamarg": {
 		Archiver:      "Generic",
@@ -173,19 +187,19 @@ var Comics = map[string]Comic{
 		FilePrefix:    "https://www.itswalky.com/wp-content/uploads/",
 		PrevLinkMatch: regexp.MustCompile(`href="(https://www.itswalky.com/comic/[0-9a-zA-Z/-]+)" class="comic-nav-base comic-nav-previous"`),
 	},
-	// TODO: verify all of this:
 	"shortpacked": {
 		Archiver:      "Generic",
 		StartURL:      "https://www.shortpacked.com/comic",
-		FileMatch:     regexp.MustCompile(`/comics/(.+\.png)`),
+		FileMatch:     regexp.MustCompile(`src="https://www\.shortpacked\.com/comics/([^"]+\.(jpg|jpeg|png|gif))" id="cc-comic"`),
 		FilePrefix:    "https://www.shortpacked.com/comics/",
-		PrevLinkMatch: regexp.MustCompile(`href="(https://www.shortpacked.com/[0-9a-zA-Z/-]+)" class="navi navi-prev"`),
+		PrevLinkMatch: regexp.MustCompile(`class="cc-prev" rel="prev" href="(https://www\.shortpacked\.com/comic/[0-9a-zA-Z/_-]+)"`),
+		// Older strips are named by date, newer ones also have an upload timestamp prefix; sort all by date
+		NamePrefixMatch: regexp.MustCompile(`/comics/(?:\d+-)?(\d{4}-\d{2}-\d{2})-[^"]*" id="cc-comic"`),
 	},
 	"girlswithslingshots": {
 		Archiver: "Generic",
-		// TODO: determine ideal starting URL for this since it's complete and chaser includes direct duplicates of originals for a certain range.
-		// StartURL: "https://www.girlswithslingshots.com/",
-		// TODO: determine if this is the ideal chaser start position. There are direct duplicate strip images after the originals started being colorized, and I'm doing this blindly with a single dumped page I found in my filesystem.
+		// The "chaser" strips are a colorized/corrected re-run of the originals; the first run ends at chaser #260.
+		// Later chasers are a re-run of the re-run, so start at the end of the first run and walk back through the originals.
 		StartURL:      "https://www.girlswithslingshots.com/comic/gws-chaser-260",
 		FileMatch:     regexp.MustCompile(`src="https://www.girlswithslingshots.com/comics/([^"]+\.(jpg|jpeg|png|gif))" id="cc-comic"`),
 		FilePrefix:    "https://www.girlswithslingshots.com/comics/",
@@ -199,18 +213,15 @@ var Comics = map[string]Comic{
 		PrevLinkMatch: regexp.MustCompile(`rel="prev" href="(https://www.marycagle.com/letsspeakenglish/[0-9a-zA-Z-]+)"`),
 	},
 	"loadingartist": {
-		Archiver:      "Generic",
-		StartURL:      "https://loadingartist.com/latest",
-		FileMatch:     regexp.MustCompile(`/uploads/([0-9]+/[0-9]+/[0-9a-zA-Z-]+\.[a-z]{3,4})`),
-		FilePrefix:    "https://loadingartist.com/wp-content/uploads/",
-		PrevLinkMatch: regexp.MustCompile(`class="normal highlight prev comic-thumb" href="(https://loadingartist.com/comic/[0-9a-zA-Z-]+/?)"`),
+		Archiver: "LoadingArtist",
+		StartURL: "https://loadingartist.com/latest",
 	},
 	"octopuspie": {
 		Archiver:      "Generic",
 		StartURL:      "http://www.octopuspie.com/2017-06-05/1023-1026-thats-it/",
 		FileMatch:     regexp.MustCompile(`src="https://test.octopuspie.com/wp-content/uploads/([^"]+\.(jpg|jpeg|png|gif))" class="attachment-full size-full`),
 		FilePrefix:    "https://test.octopuspie.com/wp-content/uploads/",
-		PrevLinkMatch: regexp.MustCompile(`class="previous-comic" href="(http://www.octopuspie.com/[0-9a-zA-Z/_-]+)"`),
+		PrevLinkMatch: regexp.MustCompile(`class="previous-comic" href="(https?://www.octopuspie.com/[0-9a-zA-Z/_-]+)"`),
 	},
 	"twogag": {
 		Archiver:      "Generic",
@@ -227,11 +238,12 @@ var Comics = map[string]Comic{
 		PrevLinkMatch: regexp.MustCompile(`rel="prev" href="(https://www.whompcomic.com/comic/[0-9a-zA-Z-]+)"`),
 	},
 	"xkcd": {
-		Archiver:      "MultiImageGeneric",
-		StartURL:      "https://xkcd.com/",
-		FileMatch:     regexp.MustCompile(`//imgs.xkcd.com/comics/([^"]+\.png)`),
-		FilePrefix:    "http://imgs.xkcd.com/comics/",
-		PrevLinkMatch: regexp.MustCompile(`rel="prev" href="/([0-9]+/)"`),
+		Archiver:        "MultiImageGeneric",
+		StartURL:        "https://xkcd.com/",
+		FileMatch:       regexp.MustCompile(`//imgs.xkcd.com/comics/([^"]+\.png)`),
+		FilePrefix:      "http://imgs.xkcd.com/comics/",
+		PrevLinkMatch:   regexp.MustCompile(`rel="prev" href="/([0-9]+/)"`),
+		NamePrefixMatch: regexp.MustCompile(`og:url" content="https://xkcd\.com/(\d+)/`),
 	},
 	"wigu-adventures": {
 		Archiver:   "Sequential",
@@ -287,42 +299,43 @@ var Comics = map[string]Comic{
 		FilePrefix:    "https://cucumber.gigidigi.com/wp-content/uploads/",
 		PrevLinkMatch: regexp.MustCompile(`href=['"](https://cucumber.gigidigi.com/cq/[0-9a-zA-Z/_-]+)['"] class=['"]webcomic-link webcomic1-link previous`),
 	},
-	// TODO: Fix pattern matching errors on some pages
 	"treadingground": {
 		Archiver:      "Generic",
 		StartURL:      "https://og.treadingground.com/comic/251/",
-		FileMatch:     regexp.MustCompile(`size-full wp-image-\d+" src="https://og.treadingground.com/wp-content/uploads/([^'"]+\.(jpg|jpeg|png|gif))"`),
+		FileMatch:     regexp.MustCompile(`class="[^"]*size-full[^"]*"[^>]* src="https://og.treadingground.com/wp-content/uploads/([^'"]+\.(jpg|jpeg|png|gif))"`),
 		FilePrefix:    "https://og.treadingground.com/wp-content/uploads/",
 		PrevLinkMatch: regexp.MustCompile(`class="previous-comic" href="(https?://og.treadingground.com/comic/[0-9a-zA-Z/_-]+)"`),
 	},
 	"treadingground2": {
-		Archiver:      "Generic",
+		Archiver:      "MultiImageGeneric",
 		StartURL:      "https://www.treadingground.com/",
-		FileMatch:     regexp.MustCompile(`(min-width: 1200px)" srcset="https://www.treadingground.com/wp-content/uploads/([^'"]+\.(jpg|jpeg|png|gif))"`),
+		FileMatch:     regexp.MustCompile(`class="alignnone[^"]*size-full[^"]*"[^>]* src="https://www.treadingground.com/wp-content/uploads/([^"]+\.(jpg|jpeg|png|gif))"`),
 		FilePrefix:    "https://www.treadingground.com/wp-content/uploads/",
 		PrevLinkMatch: regexp.MustCompile(`class="previous-comic" href="(https?://www.treadingground.com/comic/[0-9a-zA-Z/_?=-]+)"`),
 	},
 	"pbf": {
 		Archiver:      "Generic",
 		StartURL:      "https://pbfcomics.com/",
-		FileMatch:     regexp.MustCompile(`<img src='https://pbfcomics.com/wp-content/uploads/([^']+\.(jpg|jpeg|png|gif))`),
+		FileMatch:     regexp.MustCompile(`<div id="comic"><img data-src='https://pbfcomics.com/wp-content/uploads/([^']+\.(jpg|jpeg|png|gif))'`),
 		FilePrefix:    "https://pbfcomics.com/wp-content/uploads/",
 		PrevLinkMatch: regexp.MustCompile(`href="(https://pbfcomics.com/comics/[0-9a-zA-Z/_-]+)" rel="prev"`),
 	},
 	"bunny": {
-		Archiver:      "Generic",
-		StartURL:      "http://www.bunny-comic.com/",
-		FileMatch:     regexp.MustCompile(`src='strips/([^']+\.(jpg|jpeg|png|gif))'`),
-		FilePrefix:    "http://www.bunny-comic.com/strips/",
-		PrevLinkMatch: regexp.MustCompile(`id="strip">\s+<a href="([0-9]+\.html)`),
+		Archiver:        "Generic",
+		StartURL:        "http://www.bunny-comic.com/",
+		FileMatch:       regexp.MustCompile(`src='strips/([^']+\.(jpg|jpeg|png|gif))'`),
+		FilePrefix:      "http://www.bunny-comic.com/strips/",
+		PrevLinkMatch:   regexp.MustCompile(`id="strip">\s+<a href="([0-9]+\.html)`),
+		NamePrefixMatch: regexp.MustCompile(`<title>[^<]*\(# (\d+)\)`),
 	},
 	"licd": {
-		Archiver:      "GenericCustomStart",
-		StartURL:      "https://leasticoulddo.com/",
-		StartMatch:    regexp.MustCompile(`href="(https://leasticoulddo.com/comic/[0-9]+)" id="latest-comic"`),
-		FileMatch:     regexp.MustCompile(`class="comic" src="https://leasticoulddo.com/wp-content/uploads/([^"]+\.(jpg|jpeg|png|gif))`),
+		Archiver: "GenericCustomStart",
+		StartURL: "https://leasticoulddo.com/",
+		// The home page has no previous link, so start from the latest comic's own page
+		StartMatch:    regexp.MustCompile(`href="(https://leasticoulddo.com/comic/[0-9a-zA-Z-]+/)"`),
+		FileMatch:     regexp.MustCompile(`<img [^>]*width="\d{4}" height="\d+" src="https://leasticoulddo.com/wp-content/uploads/([^"?]+\.(jpg|jpeg|png|gif))(?:\?[^"]*)?"[^>]*class="attachment-full size-full wp-image-`),
 		FilePrefix:    "https://leasticoulddo.com/wp-content/uploads/",
-		PrevLinkMatch: regexp.MustCompile(`href="(https://leasticoulddo.com/comic/[0-9]+)" rel="prev"`),
+		PrevLinkMatch: regexp.MustCompile(`href="(https://leasticoulddo.com/comic/[0-9a-zA-Z-]+/)" class="comic-nav-link comic-nav-link-prev"`),
 	},
 	"asp": {
 		Archiver:      "Generic",
@@ -359,13 +372,18 @@ var Comics = map[string]Comic{
 		FilePrefix:    "https://www.devilscandycomic.com/comics/",
 		PrevLinkMatch: regexp.MustCompile(`rel="prev" href="(https://www.devilscandycomic.com/comic/[0-9a-zA-Z/_-]+)"`),
 	},
-	// TODO: needs support for filenames derived from page content, otherwise each chapter will overwrite previous pages.
 	"drugsandwires": {
 		Archiver:      "Generic",
 		StartURL:      "https://www.drugsandwires.fail/",
 		FileMatch:     regexp.MustCompile(`src="/assets/img/pages/([^"]+\.(jpg|jpeg|png|gif))"`),
 		FilePrefix:    "https://www.drugsandwires.fail/assets/img/pages/",
 		PrevLinkMatch: regexp.MustCompile(`href="(/comic/[0-9a-zA-Z/_-]+/)" class="comic__navigation__option" id="prev"`),
+		// Images live in per-chapter dirs with overlapping names, e.g. ch09/10.jpg
+		NamePrefixMatch: regexp.MustCompile(`src="/assets/img/pages/(ch\d+)/`),
+	},
+	"monochrome": {
+		Archiver: "Monochrome",
+		StartURL: "https://monochromecomic.com/",
 	},
 	"floraverse": {
 		Archiver: "Floraverse",

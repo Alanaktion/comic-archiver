@@ -13,12 +13,13 @@ import (
 )
 
 // Generic archiver supporting ComicPress, etc.
-func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix string, prevLinkMatch *regexp.Regexp, skipExisting bool, logger *log.Logger) error {
+func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix string, prevLinkMatch *regexp.Regexp, namePrefixMatch *regexp.Regexp, skipExisting bool, logger *log.Logger) error {
 	os.MkdirAll(dir, os.ModePerm)
 
 	logger.Println(startURL)
 
 	url := startURL
+	seen := map[string]bool{url: true}
 	last := lastDownloadedPage(dir)
 	for {
 		// Load page HTML
@@ -39,10 +40,11 @@ func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix s
 		}
 		imgUrl := filePrefix + files[1]
 		basename := basenameMatch.FindStringSubmatch(files[1])
-		path := dir + "/" + basename[1]
+		name := namePrefix(namePrefixMatch, s) + basename[1]
+		path := dir + "/" + name
 
 		// Download image
-		dlErr := downloadFileWait(basename[1], path, imgUrl, 500*time.Millisecond, logger)
+		dlErr := downloadFileWait(name, path, imgUrl, 500*time.Millisecond, logger)
 		if dlErr != nil {
 			if dlErr.Error() == "file exists" {
 				if !skipExisting {
@@ -89,6 +91,11 @@ func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix s
 				url = startURL + links[1]
 			}
 		}
+		if seen[url] {
+			logger.Println("Already visited, stopping:", url)
+			return nil
+		}
+		seen[url] = true
 		recordLastPage(dir, url, logger)
 
 		// Wait a bit
@@ -96,7 +103,7 @@ func Generic(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix s
 	}
 }
 
-func GenericCustomStart(startURL string, startMatch *regexp.Regexp, dir string, fileMatch *regexp.Regexp, filePrefix string, prevLinkMatch *regexp.Regexp, skipExisting bool, logger *log.Logger) error {
+func GenericCustomStart(startURL string, startMatch *regexp.Regexp, dir string, fileMatch *regexp.Regexp, filePrefix string, prevLinkMatch *regexp.Regexp, namePrefixMatch *regexp.Regexp, skipExisting bool, logger *log.Logger) error {
 	// Load start page HTML
 	resp, err := http.Get(startURL)
 	if err != nil {
@@ -115,5 +122,5 @@ func GenericCustomStart(startURL string, startMatch *regexp.Regexp, dir string, 
 	}
 
 	// Start comic download
-	return Generic(start[1], dir, fileMatch, filePrefix, prevLinkMatch, skipExisting, logger)
+	return Generic(start[1], dir, fileMatch, filePrefix, prevLinkMatch, namePrefixMatch, skipExisting, logger)
 }

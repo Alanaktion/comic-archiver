@@ -3,11 +3,29 @@ package archivers
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"regexp"
+	"strconv"
 	"time"
 )
+
+// Some sites (e.g. Monochrome) reject Go's default User-Agent, so identify ourselves instead.
+type userAgentTransport struct{ base http.RoundTripper }
+
+func (t userAgentTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	req = req.Clone(req.Context())
+	req.Header.Set("User-Agent", "comic-archiver")
+	return t.base.RoundTrip(req)
+}
+
+func init() {
+	http.DefaultClient.Transport = userAgentTransport{http.DefaultTransport}
+	// Never let a stalled server block a comic (and the whole run) forever
+	http.DefaultClient.Timeout = 2 * time.Minute
+}
 
 // Download a file
 func downloadFile(filename string, path string, url string, logger *log.Logger) error {
@@ -63,4 +81,20 @@ func recordLastPage(comic string, url string, logger *log.Logger) error {
 		logger.Println("Failed to write last URL:", err)
 	}
 	return err
+}
+
+// Build a filename prefix from the page HTML so files sort in reading order
+// even when the site's own filenames don't. Numeric prefixes are zero-padded.
+func namePrefix(match *regexp.Regexp, page string) string {
+	if match == nil {
+		return ""
+	}
+	m := match.FindStringSubmatch(page)
+	if len(m) < 2 {
+		return ""
+	}
+	if n, err := strconv.Atoi(m[1]); err == nil {
+		return fmt.Sprintf("%06d_", n)
+	}
+	return m[1] + "_"
 }

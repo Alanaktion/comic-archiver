@@ -10,10 +10,11 @@ import (
 )
 
 // MultiImageGeneric archiver, based on Generic but supporting multiple images per page
-func MultiImageGeneric(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix string, prevLinkMatch *regexp.Regexp, skipExisting bool, logger *log.Logger) error {
+func MultiImageGeneric(startURL string, dir string, fileMatch *regexp.Regexp, filePrefix string, prevLinkMatch *regexp.Regexp, namePrefixMatch *regexp.Regexp, skipExisting bool, logger *log.Logger) error {
 	os.MkdirAll(dir, os.ModePerm)
 
 	url := startURL
+	seen := map[string]bool{url: true}
 	last := lastDownloadedPage(dir)
 	for {
 		// Load page HTML
@@ -28,11 +29,13 @@ func MultiImageGeneric(startURL string, dir string, fileMatch *regexp.Regexp, fi
 
 		// Find and download comic images
 		files := fileMatch.FindAllStringSubmatch(s, -1)
+		pagePrefix := namePrefix(namePrefixMatch, s)
 		for i := range files {
 			basename := basenameMatch.FindStringSubmatch(files[i][1])
-			path := dir + "/" + basename[1]
+			name := pagePrefix + basename[1]
+			path := dir + "/" + name
 			imgurl := filePrefix + files[i][1]
-			err := downloadFile(files[i][1], path, imgurl, logger)
+			err := downloadFile(name, path, imgurl, logger)
 			if err != nil {
 				if err.Error() == "file exists" {
 					if !skipExisting {
@@ -63,6 +66,11 @@ func MultiImageGeneric(startURL string, dir string, fileMatch *regexp.Regexp, fi
 		} else {
 			url = startURL + links[1]
 		}
+		if seen[url] {
+			logger.Println("Already visited, stopping:", url)
+			return nil
+		}
+		seen[url] = true
 		recordLastPage(dir, url, logger)
 
 		// Wait a bit

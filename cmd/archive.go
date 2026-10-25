@@ -70,6 +70,7 @@ var archiveCmd = &cobra.Command{
 			val, ok := archivers.Comics[c]
 			if !ok {
 				log.Println("Unknown comic:", c)
+				wg.Done()
 				continue
 			}
 			go archivers.Archive(c, val, continueFlag, &wg)
